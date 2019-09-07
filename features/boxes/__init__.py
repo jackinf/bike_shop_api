@@ -1,45 +1,14 @@
 from aiohttp import web
-from firebase_admin import db
-from aiohttp_swagger import *
-
-
-@swagger_path("features/boxes/swagger/add.yaml")
-def add(request):
-    color = request.match_info.get('color', "Green")
-    if color is None:
-        raise Exception('Error', 'color not specified')
-
-    ref = db.reference('boxes')
-    ref.push({
-        'color': color,
-        'width': 7,
-        'height': 8,
-        'length': 6
-    })
-    return web.json_response({"ok": True})
-
-
-@swagger_path("features/boxes/swagger/update.yaml")
-def update(request):
-    ref = db.reference('boxes')
-    box_ref = ref.child('box001')
-    box_ref.update({
-        'color': 'blue'
-    })
-    return web.json_response({"ok": True})
-
-
-@swagger_path("features/boxes/swagger/search.yaml")
-def search(request):
-    boxes = db.reference('boxes').get()
-    return web.json_response(boxes)
+from .box_handler import BoxHandler
 
 
 def register_routes(app):
+    handler = BoxHandler()
+
     box_app = web.Application()
     box_app.add_routes([
-        web.get('/search', search),
-        web.put('/update', update),
-        web.post('/add', add)
+        web.get('/search', handler.handle_search),
+        web.put('/update', handler.handle_update),
+        web.post('/add', handler.handle_add)
     ])
     app.add_subapp('/boxes/', box_app)
