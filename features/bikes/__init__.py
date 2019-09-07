@@ -19,4 +19,6 @@ def search(request):
 
 
 def register_routes(app):
-    return app.add_routes([web.get('/bikes/search', search)])
+    bike_app = web.Application()
+    bike_app.add_routes([web.get('/search', search)])
+    app.add_subapp('/bikes/', bike_app)

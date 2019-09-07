@@ -3,7 +3,7 @@ from firebase_admin import db
 
 
 def add(request):
-    color = request.match_info.get('color', "Anonymous")
+    color = request.match_info.get('color', "Green")
     if color is None:
         raise Exception('Error', 'color not specified')
 
@@ -32,6 +32,10 @@ def search(request):
 
 
 def register_routes(app):
-    return app.add_routes([web.get('/boxes/search', search),
-                           web.get('/boxes/update', update),
-                           web.get('/boxes/add', add)])
+    box_app = web.Application()
+    box_app.add_routes([
+        web.get('/search', search),
+        web.get('/update', update),
+        web.get('/add', add)
+    ])
+    app.add_subapp('/boxes/', box_app)
