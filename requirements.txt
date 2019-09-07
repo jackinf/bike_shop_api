@@ -1,0 +1,3 @@
+aiohttp
+asyncio
+firebase_admin
