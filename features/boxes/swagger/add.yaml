@@ -1,0 +1,8 @@
+description: add an item to DB of boxes
+tags:
+  - Boxes
+produces:
+  - application/json
+responses:
+  "200":
+    description: successful operation.

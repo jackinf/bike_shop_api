@@ -1,0 +1,8 @@
+description: gets all boxes from the database
+tags:
+- Boxes
+produces:
+- application/json
+responses:
+  "200":
+    description: successful operation.

@@ -1,0 +1,9 @@
+tags:
+- Bikes
+summary: Search bike
+description: Get bikes from database
+produces:
+- application/jso
+responses:
+  "200":
+    description: successful operation

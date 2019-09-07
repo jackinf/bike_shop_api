@@ -34,6 +34,13 @@ Alternatively, it's easier to use `nodemon` for development
 nodemon server.py
 ```
 
+## Swagger
+
+In order to see all the routes in Swagger, start the app and go to 
+```
+http://localhost:8082/api/doc
+```
+
 ## Routes
 
 * `/bikes/search`
