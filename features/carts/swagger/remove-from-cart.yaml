@@ -1,0 +1,9 @@
+tags:
+  - Cart
+summary: Remove from cart
+description: Remove a bike from cart
+produces:
+  - application/json
+responses:
+  "200":
+    description: successful operation

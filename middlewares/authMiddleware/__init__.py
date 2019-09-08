@@ -13,5 +13,6 @@ async def authMiddleware(request, handler):
         auth.verify_id_token(token)
         response = await handler(request)
         return response
-    except ValueError:
+    except ValueError as e:
+        print(e)
         raise HTTPForbidden()

@@ -3,7 +3,7 @@ tags:
 summary: Search bike
 description: Get bikes from database
 produces:
-- application/jso
+- application/json
 responses:
   "200":
     description: successful operation

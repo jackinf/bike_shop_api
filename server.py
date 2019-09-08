@@ -1,6 +1,6 @@
 from aiohttp import web
 from firebase_settings import init
-from features import bikes, boxes
+from features import bikes, boxes, carts
 from aiohttp_swagger import *
 
 # Initialize the Firebase application so that we can authenticate and use database
@@ -10,6 +10,7 @@ init()
 app = web.Application()
 bikes.register_routes(app)
 boxes.register_routes(app)
+carts.register_routes(app)
 setup_swagger(app)
 
 

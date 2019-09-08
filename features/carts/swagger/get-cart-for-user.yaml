@@ -1,0 +1,9 @@
+tags:
+  - Cart
+summary: Get a cart by email
+description: Get all defails about the cart by user's email
+produces:
+  - application/json
+responses:
+  "200":
+    description: successful operation

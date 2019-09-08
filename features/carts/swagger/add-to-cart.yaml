@@ -1,0 +1,9 @@
+tags:
+  - Cart
+summary: Add to cart
+description: Add a bike into a cart
+produces:
+  - application/json
+responses:
+  "200":
+    description: successful operation
