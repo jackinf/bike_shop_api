@@ -23,5 +23,6 @@ class BikeHandler:
         docs = users_ref.stream()
 
         # Use lambdas to convert to normal form - https://book.pythontips.com/en/latest/map_filter.html
-        bikes = list(map(lambda doc: doc.to_dict(), docs))
+        bikes = list(map(lambda doc: {"id": doc.id, **doc.to_dict()}, docs))
+
         return web.json_response(bikes)

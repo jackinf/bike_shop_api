@@ -16,7 +16,6 @@ class CartHandler:
         if 'email' not in request.rel_url.query:
             return web.json_response({"error": "`email` query parameter must be provided"}, status=400)
         email = request.rel_url.query['email']
-        print(f'Email: {email}')
 
         docs = firestore.Client()\
             .collection(u'carts')\
@@ -25,39 +24,38 @@ class CartHandler:
             .stream()
 
         # Use lambdas to convert to normal form - https://book.pythontips.com/en/latest/map_filter.html
-        carts = list(map(lambda doc: doc.to_dict(), docs))
+        carts = list(map(lambda doc: {"id": doc.id, **doc.to_dict()}, docs))
         if len(carts) == 0:
             return web.json_response({"error": "Cart not found"}, status=404)
-        print(carts)
+
         cart = carts[0]
         return web.json_response(cart)
 
     @swagger_path("features/carts/swagger/add-to-cart.yaml")
     async def add_to_cart(self, request):
-        bike_id = request.match_info.get('bike-id')
+        if 'bike_id' not in request.rel_url.query:
+            return web.json_response({"error": "`bike_id` query parameter must be provided"}, status=400)
+        if 'cart_id' not in request.rel_url.query:
+            return web.json_response({"error": "`cart_id` query parameter must be provided"}, status=400)
+        bike_id = request.rel_url.query['bike_id']
         # TODO: use user's email to find or create a cart
-        cart_id = request.match_info.get('cart-id')
-        if bike_id is None:
-            raise Exception("Bike Id has not been provided")
-        if cart_id is None:
-            raise Exception("Cart Id has not been provided")
+        cart_id = request.rel_url.query['cart_id']
 
         firestore_client = firestore.Client()
 
         # Check if bike exists
         try:
             bike = firestore_client.collection('bikes').document(bike_id).get()
-            print(u'Document data: {}'.format(bike.to_dict()))
+            print(u'Bike data: {}'.format(bike.to_dict()))
         except Exception as e:
             print(f'Error: {e}')
             raise Exception('No such bike document! ')
 
         # Check if cart exists
         # TODO: if cart does not exist then create one
-        cart_ref = firestore_client.collection('carts').document(cart_id)
         try:
-            cart = cart_ref.get()
-            print(u'Cart data: {}'.format(bike.to_dict()))
+            cart = firestore_client.collection('carts').document(cart_id).get()
+            print(u'Cart data: {}'.format(cart.to_dict()))
         except Exception as e:
             print(f'Error: {e}')
             raise Exception('No such cart document! ')
@@ -65,7 +63,12 @@ class CartHandler:
         # TODO: check if an item is in the cart already
 
         # Add a bike into a cart
-        cart_ref.collection('items').document().set(bike_id)
+        firestore_client\
+            .collection('carts')\
+            .document(cart_id)\
+            .collection('items')\
+            .document()\
+            .set(bike_id)
 
         return web.json_response({"ok": True})
 
