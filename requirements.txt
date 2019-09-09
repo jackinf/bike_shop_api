@@ -2,3 +2,4 @@ aiohttp
 asyncio
 firebase_admin
 aiohttp-swagger
+google-cloud-firestore

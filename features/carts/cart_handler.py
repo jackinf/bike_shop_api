@@ -1,5 +1,5 @@
 from aiohttp import web
-from firebase_admin import firestore
+from google.cloud import firestore
 from aiohttp_swagger import *
 
 
@@ -18,7 +18,7 @@ class CartHandler:
         email = request.rel_url.query['email']
         print(f'Email: {email}')
 
-        docs = firestore.client()\
+        docs = firestore.Client()\
             .collection(u'carts')\
             .where('email', '==', email)\
             .limit(1) \
@@ -28,6 +28,7 @@ class CartHandler:
         carts = list(map(lambda doc: doc.to_dict(), docs))
         if len(carts) == 0:
             return web.json_response({"error": "Cart not found"}, status=404)
+        print(carts)
         cart = carts[0]
         return web.json_response(cart)
 
@@ -41,7 +42,7 @@ class CartHandler:
         if cart_id is None:
             raise Exception("Cart Id has not been provided")
 
-        firestore_client = firestore.client()
+        firestore_client = firestore.Client()
 
         # Check if bike exists
         try:
@@ -81,7 +82,7 @@ class CartHandler:
         # TODO: Check if cart exists
         # TODO: Check if bike exists in cart
 
-        firestore.client()\
+        firestore.Client()\
             .collection('carts')\
             .document(cart_id)\
             .collection('items')\

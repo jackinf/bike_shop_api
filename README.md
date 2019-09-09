@@ -34,6 +34,11 @@ Alternatively, it's easier to use `nodemon` for development
 nodemon server.py
 ```
 
+Nodemon with python3 and local GOOGLE_APPLICATION_CREDENTIALS (if credentials are in `./__sensitive__` folder and called `sa.json`):
+```
+GOOGLE_APPLICATION_CREDENTIALS=./__sensitive__/sa.json nodemon --exec "python3" server.py
+```
+
 ## Swagger
 
 In order to see all the routes in Swagger, start the app and go to 
