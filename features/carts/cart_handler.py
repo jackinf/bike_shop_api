@@ -24,7 +24,8 @@ class CartHandler:
             .stream()
 
         # Use lambdas to convert to normal form - https://book.pythontips.com/en/latest/map_filter.html
-        carts = list(map(lambda doc: {"id": doc.id, **doc.to_dict()}, docs))
+        # carts = list(map(lambda doc: {"id": doc.id, **doc.to_dict()}, docs))
+        carts = [{"id": doc.id, **doc.to_dict()} for doc in docs]
         if len(carts) == 0:
             return web.json_response({"error": "Cart not found"}, status=404)
 
@@ -62,13 +63,22 @@ class CartHandler:
 
         # TODO: check if an item is in the cart already
 
-        # Add a bike into a cart
-        firestore_client\
-            .collection('carts')\
-            .document(cart_id)\
-            .collection('items')\
-            .document()\
-            .set(bike_id)
+        my_cart = firestore_client.collection(u'carts').document(cart_id)
+        items = my_cart.collection('items')
+        ref_key = f'/bikes/{bike_id}'
+        existing_query = items.where('bike', '==', ref_key).limit(1).stream()
+        existing_list = [item.to_dict() for item in existing_query]
+        print(existing_list)
+        print(len(existing_list) > 0)
+        # items.document().set({"bike": f"/bikes/{bike_id}"})
+
+        # # Add a bike into a cart
+        # firestore_client\
+        #     .collection('carts')\
+        #     .document(cart_id)\
+        #     .collection('items')\
+        #     .document()\
+        #     .set(bike_id)
 
         return web.json_response({"ok": True})
 
