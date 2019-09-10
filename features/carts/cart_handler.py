@@ -26,13 +26,12 @@ class CartHandler:
                 .collection('items')\
                 .stream()
             items = [doc_item.to_dict() for doc_item in items_str]
-            cart = {"id": cart_ref.id, **cart_ref.to_dict(), "items": items}
+            cart = {"cart_id": cart_ref.id, **cart_ref.to_dict(), "bikes": items}
             break  # we need only one item
 
         if cart is None:
             return web.json_response({"error": "Cart not found"}, status=404)
 
-        # cart = carts[0]
         return web.json_response(cart)
 
     @swagger_path("features/carts/swagger/add-to-cart.yaml")
@@ -52,7 +51,7 @@ class CartHandler:
             bike = firestore_client.collection(CollectionName.bikes).document(bike_id).get()
         except Exception as e:
             print(f'Error: {e}')
-            raise Exception('No such bike document!')
+            return web.json_response({"error": "No such bike document!"}, status=400)
 
         # Check if cart exists
         # TODO: Find cart by email. Ff cart does not exist then create one
@@ -60,13 +59,12 @@ class CartHandler:
             cart = firestore_client.collection(CollectionName.carts).document(cart_id).get()
         except Exception as e:
             print(f'Error: {e}')
-            raise Exception('No such cart document!')
+            return web.json_response({"error": "No such cart document!"}, status=400)
 
         # Check if an item is in the cart already
-        items_in_cart = firestore_client.collection(CollectionName.carts).document(cart_id).collection('items')
         bike_key = Helpers.get_bike_ref_key(bike_id)
-        existing_item_query = items_in_cart.where('bike', '==', bike_key).limit(1).stream()
-        existing_item_result = [item.to_dict() for item in existing_item_query]
+        items_in_cart = self._get_items_collection_in_cart(firestore_client, cart_id)
+        existing_item_result = self._find_item_in_cart(items_in_cart, bike_key)
         if len(existing_item_result) > 0:
             return web.json_response({"ok": False, "reason": "The bike is already in the cart"}, status=200)
 
@@ -93,13 +91,11 @@ class CartHandler:
             cart = firestore_client.collection(CollectionName.carts).document(cart_id).get()
         except Exception as e:
             print(f'Error: {e}')
-            raise Exception('No such cart document!')
+            return web.json_response({"error": "No such cart document!"}, status=400)
 
         # Check if an item is in the cart
-        items_in_cart = firestore_client.collection(CollectionName.carts).document(cart_id).collection('items')
-        bike_key = Helpers.get_bike_ref_key(bike_id)
-        existing_item_query = items_in_cart.where('bike', '==', bike_key).limit(1).stream()
-        existing_item_result = [item.id for item in existing_item_query]
+        items_in_cart = self._get_items_collection_in_cart(firestore_client, cart_id)
+        existing_item_result = self._find_item_in_cart(items_in_cart, Helpers.get_bike_ref_key(bike_id))
         if len(existing_item_result) == 0:
             return web.json_response({"ok": False, "reason": "There is no such bike in the cart"}, status=200)
 
@@ -108,9 +104,25 @@ class CartHandler:
 
         return web.json_response({"ok": True})
 
-    def _get_single_cart(self, firestore_client, email):
+    @staticmethod
+    def _get_single_cart(firestore_client, email):
         return firestore_client \
             .collection(CollectionName.carts) \
             .where('email', '==', email) \
             .limit(1) \
             .stream()
+
+    @staticmethod
+    def _find_item_in_cart(items_in_cart, bike_key):
+        existing_item_str = items_in_cart\
+            .where('bike', '==', bike_key)\
+            .limit(1)\
+            .stream()
+        return [item.id for item in existing_item_str]
+
+    @staticmethod
+    def _get_items_collection_in_cart(firestore_client, cart_id):
+        return firestore_client\
+            .collection(CollectionName.carts)\
+            .document(cart_id)\
+            .collection('items')
