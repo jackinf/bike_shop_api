@@ -40,7 +40,7 @@ class CartHandler(CartDao):
         if item is not None:
             return web.json_response({"ok": False, "reason": "There is already a bike in the cart"}, status=200)
 
-        await super().add_item_into_cart(cart["cart_id"], {"bike": Helpers.get_bike_ref_key(bike["bike_id"])})
+        await super().add_item_into_cart(cart["cart_id"], {"bike": Helpers.get_bike_ref_key(bike["bike_id"]), **bike})
 
         return web.json_response({"ok": True})
 
