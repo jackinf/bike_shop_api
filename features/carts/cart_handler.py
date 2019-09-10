@@ -4,6 +4,7 @@ from aiohttp_swagger import *
 from constants import CollectionName
 from helpers import Helpers
 
+
 # noinspection PyUnusedLocal
 class CartHandler:
 
@@ -12,23 +13,22 @@ class CartHandler:
 
     @swagger_path("features/carts/swagger/get-cart-for-user.yaml")
     async def get_cart_for_user(self, request):
-        print(f'Request: {request}')
-        # TODO: pass an email as a request in middleware
         if 'email' not in request.rel_url.query:
             return web.json_response({"error": "`email` query parameter must be provided"}, status=400)
-        email = request.rel_url.query['email']
-
-        docs = firestore.Client()\
-            .collection(CollectionName.carts)\
-            .where('email', '==', email)\
-            .limit(1) \
-            .stream()
+        firestore_client = firestore.Client()
+        cart_str = self._get_single_cart(firestore.Client(), request.rel_url.query['email'])
 
         # Use lambdas or list comprehension to convert to normal form -
         # https://book.pythontips.com/en/latest/map_filter.html
         # Example:
-        #   carts = list(map(lambda doc: {"id": doc.id, **doc.to_dict()}, docs))
-        carts = [{"id": doc.id, **doc.to_dict()} for doc in docs]
+        def function(doc):
+            doc_cart = {"id": doc.id, **doc.to_dict()}
+            items_str = firestore_client.collection(CollectionName.carts).document(doc.id).collection('items').stream()
+            items = [doc_item.to_dict() for doc_item in items_str]
+            return {"items": items, **doc_cart}
+
+        carts = list(map(function, cart_str))
+        # carts = [{"id": doc.id, **doc.to_dict()} for doc in cart_str]
         if len(carts) == 0:
             return web.json_response({"error": "Cart not found"}, status=404)
 
@@ -107,3 +107,10 @@ class CartHandler:
         items_in_cart.document(bike_id).delete()
 
         return web.json_response({"ok": True})
+
+    def _get_single_cart(self, firestore_client, email):
+        return firestore_client \
+            .collection(CollectionName.carts) \
+            .where('email', '==', email) \
+            .limit(1) \
+            .stream()
