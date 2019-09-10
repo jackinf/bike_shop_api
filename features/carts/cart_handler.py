@@ -5,6 +5,15 @@ from helpers import Helpers
 from .cart_dao import CartDao
 
 
+def _extract_email(request):
+    email = None
+    if 'email' in request:
+        email = request['email']
+    elif 'email' in request.rel_url.query:
+        email = request.rel_url.query["email"]
+    return email
+
+
 # noinspection PyUnusedLocal
 class CartHandler(CartDao):
     def __init__(self):
@@ -12,12 +21,7 @@ class CartHandler(CartDao):
 
     @swagger_path("features/carts/swagger/get-cart-for-user.yaml")
     async def get_cart_for_user(self, request):
-        email = None
-        if 'email' in request:
-            email = request['email']
-        elif 'email' in request.rel_url.query:
-            email = request.rel_url.query["email"]
-
+        email = _extract_email(request)
         if email is None:
             return web.json_response({"error": "`email` query parameter must be provided"}, status=400)
 
@@ -30,59 +34,25 @@ class CartHandler(CartDao):
 
     @swagger_path("features/carts/swagger/add-to-cart.yaml")
     async def add_to_cart(self, request):
-        if "bike_id" not in request.rel_url.query:
-            return web.json_response({"error": "`bike_id` query parameter must be provided"}, status=400)
-        # TODO: replace cart_id with email: use user's email to find or create a cart
-        if "cart_id" not in request.rel_url.query:
-            return web.json_response({"error": "`cart_id` query parameter must be provided"}, status=400)
-        bike_id = request.rel_url.query["bike_id"]
-        cart_id = request.rel_url.query["cart_id"]
-
-        # Check if bike exists
-        bike = await super().get_single_bike(bike_id)
-        if bike is None:
-            return web.json_response({"error": "No such bike document!"}, status=400)
-
-        # Check if cart exists. TODO: Find cart by email. Ff cart does not exist then create one
-        cart = await super().get_single_cart(cart_id)
-        if cart is None:
-            return web.json_response({"error": "No such cart document!"}, status=400)
-
-        # Check if an item is in the cart already
-        item = await super().find_single_item_in_cart(cart_id, bike_id)
+        ((item, cart, bike), error) = await self._parse_inputs_and_try_to_find_bike_in_cart(request)
+        if error is not None:
+            return web.json_response(error, status=400)
         if item is not None:
             return web.json_response({"ok": False, "reason": "There is already a bike in the cart"}, status=200)
 
-        await super().add_item_into_cart(cart_id, {"bike": Helpers.get_bike_ref_key(bike_id)})
+        await super().add_item_into_cart(cart["cart_id"], {"bike": Helpers.get_bike_ref_key(bike["bike_id"])})
 
         return web.json_response({"ok": True})
 
     @swagger_path("features/carts/swagger/remove-from-cart.yaml")
     async def remove_from_cart(self, request):
-        if "bike_id" not in request.rel_url.query:
-            return web.json_response({"error": "`bike_id` query parameter must be provided"}, status=400)
-        # TODO: replace cart_id with email: use user's email to find or create a cart
-        if "cart_id" not in request.rel_url.query:
-            return web.json_response({"error": "`cart_id` query parameter must be provided"}, status=400)
-        bike_id = request.rel_url.query["bike_id"]
-        cart_id = request.rel_url.query["cart_id"]
-
-        # Check if bike exists
-        bike = await super().get_single_bike(bike_id)
-        if bike is None:
-            return web.json_response({"error": "No such bike document!"}, status=400)
-
-        # Check if cart exists. TODO: Find cart by email. Ff cart does not exist then create one
-        cart = await super().get_single_cart(cart_id)
-        if cart is None:
-            return web.json_response({"error": "No such cart document!"}, status=400)
-
-        # Check if an item is in the cart
-        item = await super().find_single_item_in_cart(cart_id, bike_id)
+        ((item, cart, bike), error) = await self._parse_inputs_and_try_to_find_bike_in_cart(request)
+        if error is not None:
+            return web.json_response(error, status=400)
         if item is None:
             return web.json_response({"ok": False, "reason": "There is no such bike in the cart"}, status=200)
 
-        await super().delete_single_item_from_cart(cart_id, item["item_id"])
+        await super().delete_single_item_from_cart(cart["cart_id"], item["item_id"])
 
         return web.json_response({"ok": True})
 
@@ -100,3 +70,38 @@ class CartHandler(CartDao):
     async def remove_from_cart_for_current_user(self, request):
         request['email'] = request['auth_user']["email"]
         return await self.remove_from_cart(request)
+
+    async def _parse_inputs_and_try_to_find_bike_in_cart(self, request):
+        """
+        Operations, that are being executed
+        1. Tries to get bike_id as a query parameter
+        2. Tries to get email either from request context or as a query parameter
+        3. Tries to get a bike obj from DB
+        4. Tries to get a cart obj from DB
+        5. Tries to find a reference obj (the bike) in a cart
+        :param request:
+        :return: ((CartItem, Cart, Bike), ErrorPayload)
+        """
+
+        if "bike_id" not in request.rel_url.query:
+            return None, {"error": "`bike_id` query parameter must be provided"}
+
+        email = _extract_email(request)
+        if email is None:
+            return None, {"error": "`email` query parameter must be provided"}
+
+        bike_id = request.rel_url.query["bike_id"]
+
+        # Check if bike exists
+        bike = await super().get_single_bike(bike_id)
+        if bike is None:
+            return None, {"error": "No such bike document!"}
+
+        # Check if cart exists.
+        cart = await super().find_single_cart(email)
+        if cart is None:
+            return None, {"error": "No such cart document!"}
+
+        # Check if an item is in the cart
+        item = await super().find_single_item_in_cart(cart["cart_id"], bike_id)
+        return (item, cart, bike), None
