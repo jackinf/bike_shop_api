@@ -18,21 +18,21 @@ class CartHandler:
         firestore_client = firestore.Client()
         cart_str = self._get_single_cart(firestore.Client(), request.rel_url.query['email'])
 
-        # Use lambdas or list comprehension to convert to normal form -
-        # https://book.pythontips.com/en/latest/map_filter.html
-        # Example:
-        def function(doc):
-            doc_cart = {"id": doc.id, **doc.to_dict()}
-            items_str = firestore_client.collection(CollectionName.carts).document(doc.id).collection('items').stream()
+        cart = None
+        for cart_ref in cart_str:
+            items_str = firestore_client\
+                .collection(CollectionName.carts)\
+                .document(cart_ref.id)\
+                .collection('items')\
+                .stream()
             items = [doc_item.to_dict() for doc_item in items_str]
-            return {"items": items, **doc_cart}
+            cart = {"id": cart_ref.id, **cart_ref.to_dict(), "items": items}
+            break  # we need only one item
 
-        carts = list(map(function, cart_str))
-        # carts = [{"id": doc.id, **doc.to_dict()} for doc in cart_str]
-        if len(carts) == 0:
+        if cart is None:
             return web.json_response({"error": "Cart not found"}, status=404)
 
-        cart = carts[0]
+        # cart = carts[0]
         return web.json_response(cart)
 
     @swagger_path("features/carts/swagger/add-to-cart.yaml")
