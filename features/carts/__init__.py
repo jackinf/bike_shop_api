@@ -1,9 +1,10 @@
 from aiohttp import web
-from .cart_handler import CartHandler
+
+from .firebase_cart_handler import FirebaseCartHandler
 
 
 def register_routes(app):
-    handler = CartHandler()
+    handler = FirebaseCartHandler()
 
     # TODO: temporarily disable auth middleware
     # bike_app = web.Application(middlewares=[authMiddleware])
