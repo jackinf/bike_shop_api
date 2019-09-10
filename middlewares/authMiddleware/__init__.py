@@ -10,7 +10,7 @@ async def authMiddleware(request, handler):
         raise HTTPForbidden()
     token = authorization_header.split(' ')[-1]
     try:
-        auth.verify_id_token(token)
+        request['auth_user'] = auth.verify_id_token(token)
         response = await handler(request)
         return response
     except ValueError as e:

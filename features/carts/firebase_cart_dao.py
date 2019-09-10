@@ -1,31 +1,36 @@
 from google.cloud import firestore
 
 from constants import CollectionName
-from helpers import Helpers
+from helpers import Helpers, async_wrapper
 from .cart_dao import CartDao
 
 
 class FirebaseCartDao(CartDao):
+    @async_wrapper
     def get_single_cart(self, cart_id):
         cart_ref = firestore.Client().collection(CollectionName.carts).document(cart_id).get()
         if cart_ref.exists:
             return {"cart_id": cart_ref.id, **cart_ref.to_dict()}
         return None
 
+    @async_wrapper
     def get_single_bike(self, bike_id):
         bike_ref = firestore.Client().collection(CollectionName.bikes).document(bike_id).get()
         if bike_ref.exists:
             return {"bike_id": bike_ref.id, **bike_ref.to_dict()}
         return None
 
+    @async_wrapper
     def get_items_from_cart(self, cart_id):
         stream = firestore.Client() \
             .collection(CollectionName.carts) \
             .document(cart_id) \
             .collection('items') \
             .stream()
-        return [doc_item.to_dict() for doc_item in stream]
+        result = [doc_item.to_dict() for doc_item in stream]
+        return result
 
+    @async_wrapper
     def find_single_cart(self, email):
         cart = None
         stream = firestore.Client() \
@@ -37,6 +42,7 @@ class FirebaseCartDao(CartDao):
             cart = {"cart_id": doc.id, **doc.to_dict()}
         return cart
 
+    @async_wrapper
     def find_single_item_in_cart(self, cart_id, bike_id):
         bike_key = Helpers.get_bike_ref_key(bike_id)
         item = None
@@ -51,6 +57,7 @@ class FirebaseCartDao(CartDao):
             item = {"item_id": doc.id, **doc.to_dict()}
         return item
 
+    @async_wrapper
     def add_item_into_cart(self, cart_id, document):
         firestore.Client() \
             .collection(CollectionName.carts)\
@@ -59,6 +66,7 @@ class FirebaseCartDao(CartDao):
             .document() \
             .set(document)
 
+    @async_wrapper
     def delete_single_item_from_cart(self, cart_id, bike_id):
         firestore.Client() \
             .collection(CollectionName.carts) \
