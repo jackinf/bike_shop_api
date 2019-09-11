@@ -1,7 +1,6 @@
 from aiohttp import web
 from aiohttp_swagger import *
 
-from helpers import Helpers
 from .cart_dao import CartDao
 
 
@@ -30,25 +29,31 @@ class CartHandler(CartDao):
             return web.json_response({"error": "Cart not found"}, status=404)
 
         items = await super().get_items_from_cart(cart["cart_id"])
-        return web.json_response({**cart, "bikes": items})
+        return web.json_response({**cart, "items": items})
 
     @swagger_path("features/carts/swagger/add-to-cart.yaml")
     async def add_to_cart(self, request):
-        ((item, cart, bike), error) = await self._parse_inputs_and_try_to_find_bike_in_cart(request)
+        (result, error) = await self._parse_inputs_and_try_to_find_bike_in_cart(request)
         if error is not None:
             return web.json_response(error, status=400)
+        if result is None:
+            return web.json_response("Unexpected behaviour", status=500)
+        (item, cart, bike) = result
         if item is not None:
             return web.json_response({"ok": False, "reason": "There is already a bike in the cart"}, status=200)
 
-        await super().add_item_into_cart(cart["cart_id"], {"bike": Helpers.get_bike_ref_key(bike["bike_id"]), **bike})
+        await super().add_item_into_cart(cart["cart_id"], bike["bike_id"])
 
         return web.json_response({"ok": True})
 
     @swagger_path("features/carts/swagger/remove-from-cart.yaml")
     async def remove_from_cart(self, request):
-        ((item, cart, bike), error) = await self._parse_inputs_and_try_to_find_bike_in_cart(request)
+        (result, error) = await self._parse_inputs_and_try_to_find_bike_in_cart(request)
         if error is not None:
             return web.json_response(error, status=400)
+        if result is None:
+            return web.json_response("Unexpected behaviour", status=500)
+        (item, cart, bike) = result
         if item is None:
             return web.json_response({"ok": False, "reason": "There is no such bike in the cart"}, status=200)
 

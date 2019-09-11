@@ -1,34 +1,40 @@
 from google.cloud import firestore
+from google.cloud.firestore_v1 import DocumentReference
 
 from constants import CollectionName
-from helpers import Helpers, async_wrapper
+from helpers import async_wrapper
 from .cart_dao import CartDao
 
 
 class FirebaseCartDao(CartDao):
     @async_wrapper
     def get_single_cart(self, cart_id):
-        cart_ref = firestore.Client().collection(CollectionName.carts).document(cart_id).get()
-        if cart_ref.exists:
-            return {"cart_id": cart_ref.id, **cart_ref.to_dict()}
+        cart_snapshot = firestore.Client().collection(CollectionName.carts).document(cart_id).get()
+        if cart_snapshot.exists:
+            return {"cart_id": cart_snapshot.id, **cart_snapshot.to_dict()}
         return None
 
     @async_wrapper
     def get_single_bike(self, bike_id):
-        bike_ref = firestore.Client().collection(CollectionName.bikes).document(bike_id).get()
-        if bike_ref.exists:
-            return {"bike_id": bike_ref.id, **bike_ref.to_dict()}
+        bike_snapshot = firestore.Client().collection(CollectionName.bikes).document(bike_id).get()
+        if bike_snapshot.exists:
+            return {"bike_id": bike_snapshot.id, **bike_snapshot.to_dict()}
         return None
 
     @async_wrapper
     def get_items_from_cart(self, cart_id):
+        items = []
         stream = firestore.Client() \
             .collection(CollectionName.carts) \
             .document(cart_id) \
             .collection('items') \
             .stream()
-        result = [doc_item.to_dict() for doc_item in stream]
-        return result
+        for doc in stream:
+            item = doc.to_dict()
+            if 'bike' in item and isinstance(item['bike'], DocumentReference):
+                bike_snapshot = item['bike'].get()
+                items.append({"bike": {"bike_id": bike_snapshot.id, **bike_snapshot.to_dict()}})
+        return items
 
     @async_wrapper
     def find_single_cart(self, email):
@@ -44,13 +50,12 @@ class FirebaseCartDao(CartDao):
 
     @async_wrapper
     def find_single_item_in_cart(self, cart_id, bike_id):
-        bike_key = Helpers.get_bike_ref_key(bike_id)
         item = None
         stream = firestore.Client() \
             .collection(CollectionName.carts) \
             .document(cart_id) \
             .collection('items') \
-            .where('bike', '==', bike_key) \
+            .where('bike_id', '==', bike_id) \
             .limit(1) \
             .stream()
         for doc in stream:
@@ -58,19 +63,20 @@ class FirebaseCartDao(CartDao):
         return item
 
     @async_wrapper
-    def add_item_into_cart(self, cart_id, document):
+    def add_item_into_cart(self, cart_id, bike_id):
+        bike_ref = firestore.Client().collection(CollectionName.bikes).document(bike_id)
         firestore.Client() \
             .collection(CollectionName.carts)\
             .document(cart_id)\
             .collection('items') \
             .document() \
-            .set(document)
+            .set({"bike": bike_ref, "bike_id": bike_id})
 
     @async_wrapper
-    def delete_single_item_from_cart(self, cart_id, bike_id):
+    def delete_single_item_from_cart(self, cart_id, item_id):
         firestore.Client() \
             .collection(CollectionName.carts) \
             .document(cart_id) \
             .collection('items') \
-            .document(bike_id) \
+            .document(item_id) \
             .delete()

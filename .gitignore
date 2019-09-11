@@ -2,3 +2,6 @@
 /__sensitive__
 .idea
 __pycache__
+
+# I'm ignoring this because it has specific configuration for Unix and it will fail on Windows
+nodemon.json
