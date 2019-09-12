@@ -1,3 +1,4 @@
+import aiohttp_cors
 from aiohttp import web
 from firebase_settings import init
 from features import bikes, boxes, carts
@@ -12,6 +13,19 @@ bikes.register_routes(app)
 boxes.register_routes(app)
 carts.register_routes(app)
 setup_swagger(app)
+
+# Configure default CORS settings.
+cors = aiohttp_cors.setup(app, defaults={
+    "*": aiohttp_cors.ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+        )
+})
+
+# Configure CORS on all routes.
+for route in list(app.router.routes()):
+    cors.add(route)
 
 
 if __name__ == '__main__':
