@@ -27,8 +27,10 @@ def init():
     f.write(output)
     f.close()
 
-    # or set GOOGLE_APPLICATION_CREDENTIALS with a path to service account instead of passing credential
-    firebase_admin.initialize_app(
-        options={"databaseURL": "https://bikeshop-123f1.firebaseio.com"},
-        credential=credentials.Certificate('service-account.json')
-    )
+    if os.getenv('GOOGLE_APPLICATION_CREDENTIALS') is None:
+        firebase_admin.initialize_app(
+            options={"databaseURL": os.getenv('BIKE_SHOP_DATABASE_URL')},  # "https://bikeshop-123f1.firebaseio.com"
+            credential=credentials.Certificate('service-account.json')
+        )
+    else:
+        firebase_admin.initialize_app(options={"databaseURL": os.getenv('BIKE_SHOP_DATABASE_URL')})
