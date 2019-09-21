@@ -12,6 +12,11 @@ app = web.Application()
 bikes.register_routes(app)
 boxes.register_routes(app)
 carts.register_routes(app)
+
+
+async def get_status(_request):
+    return web.json_response({"ok": True})
+app.add_routes([web.get('/status', get_status)])
 setup_swagger(app)
 
 # Configure default CORS settings.
