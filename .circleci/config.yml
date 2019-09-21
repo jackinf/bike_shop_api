@@ -2,7 +2,6 @@ version: 2
 general:
   branches:
     only:
-    - develop
     - master
 jobs:
   build:
@@ -10,5 +9,5 @@ jobs:
     steps:
     - checkout
     - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-    - run: docker build -t stylehopper/bikeshop.api:$CIRCLE_BRANCH .
-    - run: docker push stylehopper/bikeshop.api:$CIRCLE_BRANCH
+    - run: docker build -t stylehopper/bikeshop.api:latest .
+    - run: docker push stylehopper/bikeshop.api:latest
