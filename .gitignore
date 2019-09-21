@@ -5,3 +5,6 @@ __pycache__
 
 # I'm ignoring this because it has specific configuration for Unix and it will fail on Windows
 nodemon.json
+
+# This file is being generated in runtime and may contain sensitive data
+service-account.json
