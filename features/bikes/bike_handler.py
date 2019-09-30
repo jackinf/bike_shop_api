@@ -1,4 +1,6 @@
+import random
 from datetime import datetime
+from google.cloud.firestore_v1 import Increment
 
 from aiohttp import web
 from aiohttp_swagger import *
@@ -6,6 +8,9 @@ from google.cloud import firestore
 
 
 # noinspection PyUnusedLocal
+from helpers import randomString
+
+
 class BikeHandler:
     """
     Uses Cloud Firestore to query for document
@@ -28,69 +33,45 @@ class BikeHandler:
 
         return web.json_response(bikes)
 
+    async def add_bike(self, request):
+        db = firestore.Client()
+
+        tran = db.transaction()
+        doc = db.collection('bikes').document()
+        doc.set({
+            "title": randomString(10),
+            "price": random.randint(100, 2000),
+            "stars": random.choice([1, 2, 3, 4, 5]),
+            "createdOn": datetime.now(tz=None)
+        })
+        db.collection('bikes').document("metainfo").set({"total": Increment(1)}, merge=True)
+
+        tran.commit()
+        return web.json_response({"ok": True, "id": doc.id})
+
+    async def remove_bike(self, request):
+        db = firestore.Client()
+        tran = db.transaction()
+        db.collection('bikes').document(request.rel_url.query['id']).delete()
+        db.collection('bikes').document("metainfo").set({"total": Increment(-1)}, merge=True)
+        tran.commit()
+        return web.json_response({"ok": True})
+
     async def generate_bikes(self, request):
         await self._delete_all_bikes()
         db = firestore.Client()
-        db.collection('bikes').document().set({
-            "title": "Bike01",
-            "price": 101,
-            "stars": 1,
-            "createdOn": datetime.now(tz=None)
-        })
-        db.collection('bikes').document().set({
-            "title": "Bike02",
-            "price": 222,
-            "stars": 2,
-            "createdOn": datetime.now(tz=None)
-        })
-        db.collection('bikes').document().set({
-            "title": "Bike03",
-            "price": 302,
-            "stars": 4,
-            "createdOn": datetime.now(tz=None)
-        })
-        db.collection('bikes').document().set({
-            "title": "Bike04",
-            "price": 402,
-            "stars": 5,
-            "createdOn": datetime.now(tz=None)
-        })
-        db.collection('bikes').document().set({
-            "title": "Bike05",
-            "price": 582,
-            "stars": 5,
-            "createdOn": datetime.now(tz=None)
-        })
-        db.collection('bikes').document().set({
-            "title": "Bike06",
-            "price": 669,
-            "stars": 2,
-            "createdOn": datetime.now(tz=None)
-        })
-        db.collection('bikes').document().set({
-            "title": "Bike07",
-            "price": 725,
-            "stars": 4,
-            "createdOn": datetime.now(tz=None)
-        })
-        db.collection('bikes').document().set({
-            "title": "Bike08",
-            "price": 850,
-            "stars": 3,
-            "createdOn": datetime.now(tz=None)
-        })
-        db.collection('bikes').document().set({
-            "title": "Bike09",
-            "price": 900,
-            "stars": 5,
-            "createdOn": datetime.now(tz=None)
-        })
-        db.collection('bikes').document().set({
-            "title": "Bike10",
-            "price": 1000,
-            "stars": 4,
-            "createdOn": datetime.now(tz=None)
-        })
+        tran = db.transaction()
+        for i in range(0, 4):
+            db.collection('bikes').document().set({
+                "title": randomString(10),
+                "price": random.randint(100, 2000),
+                "stars": random.choice([1, 2, 3, 4, 5]),
+                "createdOn": datetime.now(tz=None)
+            }, merge=True)
+            db.collection('bikes').document("metainfo").set({
+                "total": Increment(1)
+            }, merge=True)
+        tran.commit()
         return web.json_response({"ok": True})
 
     @swagger_path("features/bikes/swagger/search.yaml")
@@ -124,7 +105,8 @@ class BikeHandler:
         else:
             firestore_order_direction = firestore.Query.ASCENDING
 
-        bikes_ref = firestore.Client().collection(u'bikes')
+        db = firestore.Client()
+        bikes_ref = db.collection(u'bikes')
 
         sort_options = {
             "title": lambda ref: ref.order_by('title', direction=firestore_order_direction),
@@ -161,7 +143,8 @@ class BikeHandler:
 
         print(f'Bikes: {bikes}')
 
-        return web.json_response(bikes)
+        total = db.collection('bikes').document("metainfo").get().to_dict()["total"]
+        return web.json_response({"items": bikes, "total": total})
 
     async def _delete_all_bikes(self):
         def delete_collection(coll_ref, batch_size):
