@@ -5,4 +5,4 @@ aiohttp-swagger
 google-cloud-firestore
 aiohttp_cors
 peewee
-psycopg2
+psycopg2-binary

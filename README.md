@@ -4,7 +4,7 @@
 
 React-Native Bike Shop repo - https://github.com/jackinf/BikeShop
 
-## Getting started
+## Prerequisites
 
 ### Prepare Firebase app
 
@@ -14,8 +14,19 @@ React-Native Bike Shop repo - https://github.com/jackinf/BikeShop
     ```
     GOOGLE_APPLICATION_CREDENTIALS=path/to/service_account.json
     ```
-   
-### Prepare Python environment
+
+### Prepare PostgreSQL
+
+**For local environment:** you can spin up Docker instance
+```
+docker run --rm --name pg-docker -e POSTGRES_PASSWORD=docker -d -p 5432:5432 -v postgres-data:/var/lib/postgresql/data postgres
+```
+**For external connection** specify env variable
+```
+BIKESHOP_DATABASE=postgresql://user:pass@host:port/bikeshop
+```
+
+### Installing dependencies
 
 Make sure that Python 3.3+ and PIP 18+ are installed
 
@@ -23,6 +34,8 @@ Restore dependencies:
 ```
 pip install -r requirements.txt
 ```
+   
+## Starting the app
 
 Start the app:
 ```
