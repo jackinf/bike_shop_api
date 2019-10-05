@@ -38,8 +38,8 @@ class Bike(BaseModel):
 
 
 class BikeStatus(Model):
-    key = SmallIntegerField()
-    value = CharField
+    the_key = SmallIntegerField(primary_key=True, column_name='id')
+    value = CharField()
 
     class Meta:
         database = db
