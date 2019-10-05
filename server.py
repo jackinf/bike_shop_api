@@ -1,7 +1,7 @@
 import aiohttp_cors
 from aiohttp import web
 from firebase_settings import init
-from features import bikes, boxes, carts
+from features import bikes, boxes, carts, auth
 from aiohttp_swagger import *
 
 # Initialize the Firebase application so that we can authenticate and use database
@@ -12,6 +12,7 @@ app = web.Application()
 bikes.register_routes(app)
 boxes.register_routes(app)
 carts.register_routes(app)
+auth.register_routes(app)
 
 
 async def get_status(_request):
