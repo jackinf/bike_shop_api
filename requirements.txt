@@ -4,3 +4,5 @@ firebase_admin
 aiohttp-swagger
 google-cloud-firestore
 aiohttp_cors
+peewee
+psycopg2
