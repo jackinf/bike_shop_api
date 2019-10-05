@@ -1,6 +1,3 @@
-from helpers import async_wrapper
-
-
 class CartDao:
     async def get_single_cart(self, cart_id):
         pass
