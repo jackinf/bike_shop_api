@@ -9,26 +9,22 @@ from helpers import randomString
 
 # noinspection PyUnusedLocal
 class BikeHandler(BikeDao):
-    """
-    Uses Cloud Firestore to query for document
-    Firestore Client: https://googleapis.github.io/google-cloud-python/latest/firestore/client.html
-    Quick-start for Firestore - https://firebase.google.com/docs/firestore/quickstart
-    Querying data - https://firebase.google.com/docs/firestore/query-data/get-data
-    Querying data - https://cloud.google.com/firestore/docs/query-data/queries
-    """
-
-    def __init__(self):
-        pass
-
     async def get_all(self, request):
-        bikes = await self.get_all_bikes()
+        bikes = await self.dao_get_all_bikes()
         return web.json_response(bikes)
 
     async def add_bike(self, request):
+        # bike_id = await self.dao_add_bike({
+        #     "title": randomString(10),
+        #     "price": random.randint(100, 2000),
+        #     "stars": random.choice([1, 2, 3, 4, 5]),
+        #     "createdOn": datetime.now(tz=None)
+        # })
         bike_id = await self.dao_add_bike({
-            "title": randomString(10),
-            "price": random.randint(100, 2000),
-            "stars": random.choice([1, 2, 3, 4, 5]),
+            "purchase_price": random.randint(100, 2000),
+            "selling_price": None,
+            "user_id": None,
+            "status_key": 0,
             "createdOn": datetime.now(tz=None)
         })
         return web.json_response({"ok": True, "id": bike_id})

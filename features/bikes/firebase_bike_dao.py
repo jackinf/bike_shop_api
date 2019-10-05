@@ -7,7 +7,16 @@ from features.bikes.bike_dao import BikeDao
 from helpers import async_wrapper, randomString
 
 
+# TODO: initialize firestore client in constructor, transaction
 class FirebaseBikeDao(BikeDao):
+    """
+    Uses Cloud Firestore to query for document
+    Firestore Client: https://googleapis.github.io/google-cloud-python/latest/firestore/client.html
+    Quick-start for Firestore - https://firebase.google.com/docs/firestore/quickstart
+    Querying data - https://firebase.google.com/docs/firestore/query-data/get-data
+    Querying data - https://cloud.google.com/firestore/docs/query-data/queries
+    """
+
     @async_wrapper
     def dao_search_bikes(self, page, rows_per_page, order_direction, order_column, filter_keyword):
         offset = page * rows_per_page

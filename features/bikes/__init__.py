@@ -1,10 +1,11 @@
 from aiohttp import web
 
 from features.bikes.firebase_bike_handler import FirebaseBikeHandler
+from features.bikes.sql_bike_handler import SqlBikeHandler
 
 
 def register_routes(app):
-    handler = FirebaseBikeHandler()
+    handler = SqlBikeHandler()
 
     bike_app = web.Application()
     bike_app.add_routes([web.get('/get-all', handler.get_all)])

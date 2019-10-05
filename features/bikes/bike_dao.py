@@ -2,7 +2,7 @@ class BikeDao:
     async def dao_search_bikes(self, page, rows_per_page, order_direction, order_column, filter_keyword):
         pass
 
-    async def get_all_bikes(self):
+    async def dao_get_all_bikes(self):
         pass
 
     async def dao_add_bike(self, bike) -> str:
