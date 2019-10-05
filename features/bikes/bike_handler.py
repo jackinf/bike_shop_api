@@ -4,7 +4,6 @@ from aiohttp import web
 from aiohttp_swagger import *
 
 from features.bikes.bike_dao import BikeDao
-from helpers import randomString
 
 
 # noinspection PyUnusedLocal
@@ -21,6 +20,7 @@ class BikeHandler(BikeDao):
         #     "createdOn": datetime.now(tz=None)
         # })
         bike_id = await self.dao_add_bike({
+            "bike_type_id": request.rel_url.query["bike_type_id"],
             "purchase_price": random.randint(100, 2000),
             "selling_price": None,
             "user_id": None,
@@ -35,8 +35,11 @@ class BikeHandler(BikeDao):
         return web.json_response({"ok": True})
 
     async def generate_bikes(self, request):
+        count = 4
+        if 'count' in request.rel_url.query:
+            count = int(request.rel_url.query['count'])
         await self.dao_delete_all_bikes()
-        await self.dao_generate_bikes(4)
+        await self.dao_generate_bikes(count)
         return web.json_response({"ok": True})
 
     @swagger_path("features/bikes/swagger/search.yaml")
