@@ -1,11 +1,17 @@
 class BikeDao:
-    async def dao_search_bikes(self, page, rows_per_page, order_direction, order_column, filter_keyword):
+    async def dao_search_bike_types(self, search_parameters):
         pass
 
-    async def dao_get_all_bikes(self):
+    async def dao_search_bikes(self, search_parameters):
+        pass
+
+    async def dao_get_bike(self, bike) -> str:
         pass
 
     async def dao_add_bike(self, bike) -> str:
+        pass
+
+    async def dao_update_bike(self, bike):
         pass
 
     async def dao_remove_bike(self, bike_id):

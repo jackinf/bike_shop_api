@@ -16,3 +16,9 @@ class HeaderKeys:
 class RequestContextKeys:
     auth_user = "auth_user"
     email = "email"
+
+
+class BikeStatusKeys:
+    available = 0
+    in_cart = 1
+    sold = 2

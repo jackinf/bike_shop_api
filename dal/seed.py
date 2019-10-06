@@ -1,6 +1,6 @@
 import datetime
 
-from constants import UserRoleName
+from constants import UserRoleName, BikeStatusKeys
 from dal.relational_db import db
 from dal.relational_db.models import Role, BikeStatus, BikeType, User, UserRole
 
@@ -20,9 +20,9 @@ def seed_relational_db():
         if len(BikeStatus.select().where(BikeStatus.value == value).limit(1)) == 0:
             BikeStatus.create(the_key=the_key, value=value)
 
-    check_or_create_bike_status(0, 'available')
-    check_or_create_bike_status(1, 'in cart')
-    check_or_create_bike_status(2, 'sold')
+    check_or_create_bike_status(BikeStatusKeys.available, 'available')
+    check_or_create_bike_status(BikeStatusKeys.in_cart, 'in cart')
+    check_or_create_bike_status(BikeStatusKeys.sold, 'sold')
 
     # ====================================
     # DEMO DATA - START
