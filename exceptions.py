@@ -1,0 +1,2 @@
+class NotInRoleException(Exception):
+    pass

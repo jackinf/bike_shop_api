@@ -1,13 +1,14 @@
 from aiohttp import web
 from aiohttp_swagger import *
 
+from constants import RequestContextKeys
 from .cart_dao import CartDao
 
 
 def _extract_email(request):
     email = None
-    if 'email' in request:
-        email = request['email']
+    if RequestContextKeys.email in request:
+        email = request[RequestContextKeys.email]
     elif 'email' in request.rel_url.query:
         email = request.rel_url.query["email"]
     return email
@@ -63,17 +64,17 @@ class CartHandler(CartDao):
 
     @swagger_path("features/carts/swagger/get-cart-for-current-user.yaml")
     async def get_cart_for_current_user(self, request):
-        request['email'] = request['auth_user']["email"]
+        request[RequestContextKeys.email] = request[RequestContextKeys.auth_user]["email"]
         return await self.get_cart_for_user(request)
 
     @swagger_path("features/carts/swagger/add-to-cart-for-current-user.yaml")
     async def add_to_cart_for_current_user(self, request):
-        request['email'] = request['auth_user']["email"]
+        request[RequestContextKeys.email] = request[RequestContextKeys.auth_user]["email"]
         return await self.add_to_cart(request)
 
     @swagger_path("features/carts/swagger/remove-from-cart-for-current-user.yaml")
     async def remove_from_cart_for_current_user(self, request):
-        request['email'] = request['auth_user']["email"]
+        request[RequestContextKeys.email] = request[RequestContextKeys.auth_user]["email"]
         return await self.remove_from_cart(request)
 
     async def _parse_inputs_and_try_to_find_bike_in_cart(self, request):

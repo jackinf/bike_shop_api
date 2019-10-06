@@ -4,7 +4,8 @@ from google.cloud import firestore
 from google.cloud.firestore_v1 import Increment
 
 from features.bikes.bike_dao import BikeDao
-from helpers import async_wrapper, randomString
+from decorators.async_wrapper import async_wrapper
+from helpers import random_string
 
 
 # TODO: initialize firestore client in constructor, transaction
@@ -95,7 +96,7 @@ class FirebaseBikeDao(BikeDao):
         tran = db.transaction()
         for i in range(0, number):
             db.collection('bikes').document().set({
-                "title": randomString(10),
+                "title": random_string(10),
                 "price": random.randint(100, 2000),
                 "stars": random.choice([1, 2, 3, 4, 5]),
                 "createdOn": datetime.now(tz=None)

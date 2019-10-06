@@ -4,7 +4,8 @@ from datetime import datetime
 from dal.relational_db import db
 from dal.relational_db.models import Bike, BikeType
 from features.bikes.bike_dao import BikeDao
-from helpers import async_wrapper, from_date_to_str
+from decorators.async_wrapper import async_wrapper
+from helpers import from_date_to_str
 
 
 class SqlBikeDao(BikeDao):
@@ -32,7 +33,7 @@ class SqlBikeDao(BikeDao):
             query = sort_options["created_on"](query)
 
         if filter_keyword is not None:
-            query = query.where(Bike.bike_type_id.title.contains(filter_keyword))
+            query = query.where(Bike.bike_type.title.contains(filter_keyword))
 
         # Page numbers are 1-based, so appending 1 to page
         query = query.paginate(page + 1, rows_per_page).prefetch(BikeType)
@@ -41,12 +42,13 @@ class SqlBikeDao(BikeDao):
         for item in query:
             result = {
                 "id": str(item.id),
-                "title": item.bike_type_id.title,
-                "created_on": from_date_to_str(item.created_on)
+                "title": item.bike_type.title,
+                "stars": int(item.bike_type.stars),
+                "createdOn": from_date_to_str(item.created_on)
             }
 
             try:
-                result["purchase_price"] = float(item.purchase_price)
+                result["price"] = float(item.purchase_price)
             except:
                 pass
 

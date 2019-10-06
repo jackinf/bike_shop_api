@@ -3,7 +3,7 @@ from pprint import pprint
 
 from dal.relational_db import db
 from dal.relational_db.models import BikeType, Bike
-from helpers import randomString
+from helpers import random_string
 
 db.connect()
 
@@ -13,7 +13,7 @@ BikeType.delete().execute()
 for i in range(1, 5):
     BikeType(
         title=f"Bike_{i}",
-        description=f"Descr_{randomString(10)}",
+        description=f"Descr_{random_string(10)}",
         stars=random.choice([1, 2, 3, 4, 5])
     ).save()
 

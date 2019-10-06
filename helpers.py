@@ -1,19 +1,12 @@
-import asyncio
 import datetime
 import random
 import string
 
 
-def async_wrapper(sync_fn):
-    def inner(*args):
-        return asyncio.get_running_loop().run_in_executor(None, sync_fn, *args)
-    return inner
-
-
-def randomString(stringLength=10):
+def random_string(string_length=10):
     """Generate a random string of fixed length """
     letters = string.ascii_lowercase
-    return ''.join(random.choice(letters) for i in range(stringLength))
+    return ''.join(random.choice(letters) for i in range(string_length))
 
 
 def from_date_to_str(date: datetime) -> str:

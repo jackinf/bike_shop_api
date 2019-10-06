@@ -2,7 +2,7 @@ from google.cloud import firestore
 from google.cloud.firestore_v1 import DocumentReference
 
 from constants import CollectionName
-from helpers import async_wrapper
+from decorators.async_wrapper import async_wrapper
 from .cart_dao import CartDao
 
 
