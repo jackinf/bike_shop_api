@@ -41,7 +41,7 @@ class SqlBikeDao(BikeDao):
         return results, total
 
     @async_wrapper
-    def dao_search_bikes(self, search_parameters):
+    def dao_search_bikes(self, bike_type_id, search_parameters):
         page = search_parameters.get('page')
         rows_per_page = search_parameters.get('rows_per_page')
         order_direction = search_parameters.get('order_direction')
@@ -56,7 +56,7 @@ class SqlBikeDao(BikeDao):
             "selling_price": lambda ref: ref.order_by(Bike.selling_price if order_direction == 'desc' else Bike.selling_price.desc()),
         }
 
-        query = Bike.select(Bike, BikeType).join(BikeType)
+        query = Bike.select(Bike, BikeType).join(BikeType).where(Bike.bike_type == bike_type_id)
         query = self._apply_sort(query, order_column, sort_options)
         if filter_keyword is not None:
             query = query.where(Bike.bike_type.title.contains(filter_keyword))
