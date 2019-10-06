@@ -42,6 +42,15 @@ class UserRole(Model):
         table_name = 'user_role'
 
 
+class BikeStatus(Model):
+    the_key = SmallIntegerField(primary_key=True, column_name='id')
+    value = CharField()
+
+    class Meta:
+        database = db
+        table_name = 'bike_status'
+
+
 class BikeType(BaseModel):
     title = CharField()
     description = CharField()
@@ -56,18 +65,9 @@ class Bike(BaseModel):
     bike_type = ForeignKeyField(BikeType, backref="bikes", column_name='bike_type_id')
     purchase_price = DecimalField()
     selling_price = DecimalField()
-    status_key = SmallIntegerField()
-    user = ForeignKeyField(User, backref="bikes", column_name='user_id')
+    # status_key = ForeignKeyField(BikeStatus, backref="bikes")  # TODO: fix
+    user_id = ForeignKeyField(User, backref="bikes", column_name='user_id')
 
     class Meta:
         database = db
         table_name = 'bike'
-
-
-class BikeStatus(Model):
-    the_key = SmallIntegerField(primary_key=True, column_name='id')
-    value = CharField()
-
-    class Meta:
-        database = db
-        table_name = 'bike_status'

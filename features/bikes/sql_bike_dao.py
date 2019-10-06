@@ -25,19 +25,19 @@ class SqlBikeDao(BikeDao):
         filter_keyword = search_parameters.get('filter_keyword')
 
         sort_options = {
-            "title": lambda ref: ref.order_by(BikeType.purchase_price if order_direction == 'desc' else BikeType.purchase_price.desc()),
-            "description": lambda ref: ref.order_by(BikeType.selling_price if order_direction == 'desc' else BikeType.selling_price.desc()),
-            "stars": lambda ref: ref.order_by(BikeType.status_key if order_direction == 'desc' else BikeType.status_key.desc()),
+            "title": lambda ref: ref.order_by(BikeType.title if order_direction == 'desc' else BikeType.title.desc()),
+            "description": lambda ref: ref.order_by(BikeType.description if order_direction == 'desc' else BikeType.description.desc()),
+            "stars": lambda ref: ref.order_by(BikeType.stars if order_direction == 'desc' else BikeType.stars.desc()),
             "created_on": lambda ref: ref.order_by(BikeType.created_on if order_direction == 'desc' else BikeType.created_on.desc()),
         }
 
         query = BikeType.select()
         query = self._apply_sort(query, order_column, sort_options)
         if filter_keyword is not None:
-            query = query.where(Bike.bike_type.title.contains(filter_keyword))
-        query = query.paginate(page + 1, rows_per_page).prefetch(BikeType)
+            query = query.where(BikeType.title.contains(filter_keyword))
+        query = query.paginate(page + 1, rows_per_page)
         results = self._map_dao_search_bike_types_query_results(query)
-        total = Bike.select().count()
+        total = BikeType.select().count()
         return results, total
 
     @async_wrapper
@@ -49,10 +49,11 @@ class SqlBikeDao(BikeDao):
         filter_keyword = search_parameters.get('filter_keyword')
 
         sort_options = {
+            "user": lambda ref: ref.order_by(Bike.user_id if order_direction == 'desc' else Bike.user_id.desc()),          # TODO: order by email
+            "status": lambda ref: ref.order_by(Bike.status_key if order_direction == 'desc' else Bike.status_key.desc()),  # TODO: order by status value
+            "created_on": lambda ref: ref.order_by(Bike.created_on if order_direction == 'desc' else Bike.created_on.desc()),
             "purchase_price": lambda ref: ref.order_by(Bike.purchase_price if order_direction == 'desc' else Bike.purchase_price.desc()),
             "selling_price": lambda ref: ref.order_by(Bike.selling_price if order_direction == 'desc' else Bike.selling_price.desc()),
-            "status_key": lambda ref: ref.order_by(Bike.status_key if order_direction == 'desc' else Bike.status_key.desc()),
-            "created_on": lambda ref: ref.order_by(Bike.created_on if order_direction == 'desc' else Bike.created_on.desc()),
         }
 
         query = Bike.select(Bike, BikeType).join(BikeType)
@@ -115,9 +116,9 @@ class SqlBikeDao(BikeDao):
         for item in query:
             result = {
                 "id": str(item.id),
-                "title": item.bike_type.title,
-                "stars": int(item.bike_type.stars),
-                "createdOn": from_date_to_str(item.created_on)
+                "title": item.title,
+                "stars": int(item.stars),
+                "created_on": from_date_to_str(item.created_on)
             }
             results.append(result)
         return results
@@ -125,15 +126,20 @@ class SqlBikeDao(BikeDao):
     def _map_dao_search_bikes_query_result(self, query):
         results = []
         for item in query:
+            try:
+                user_email = item.user_id.email
+            except:
+                user_email = None
+
             result = {
                 "id": str(item.id),
-                "title": item.bike_type.title,
-                "stars": int(item.bike_type.stars),
-                "createdOn": from_date_to_str(item.created_on)
+                "user": user_email,
+                # "status": item.status_key.value,
+                "created_on": from_date_to_str(item.created_on)
             }
 
             try:
-                result["price"] = float(item.purchase_price)
+                result["purchase_price"] = float(item.purchase_price)
             except:
                 pass
 

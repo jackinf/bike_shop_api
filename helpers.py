@@ -10,6 +10,8 @@ def random_string(string_length=10):
 
 
 def from_date_to_str(date: datetime) -> str:
+    if date is None:
+        return ''
     return date.strftime("%d-%b-%Y %H:%M:%S.%f")
 
 
