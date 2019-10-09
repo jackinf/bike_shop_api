@@ -9,7 +9,6 @@ from helpers import extract_search_query_parameters
 
 # noinspection PyUnusedLocal
 class BikeHandler(BikeDao):
-    @swagger_path("features/bikes/swagger/search.yaml")
     async def search_bike_types(self, request):
         search_parameters = extract_search_query_parameters(request.rel_url.query)
         bike_types, total = await self.dao_search_bike_types(search_parameters)
@@ -17,9 +16,14 @@ class BikeHandler(BikeDao):
 
     @swagger_path("features/bikes/swagger/search.yaml")
     async def search_bikes(self, request):
+        search_parameters = extract_search_query_parameters(request.rel_url.query)
+        bikes, total = await self.dao_search_bikes(search_parameters)
+        return web.json_response({"items": bikes, "total": total})
+
+    async def search_bikes_of_bike_type(self, request):
         bike_type_id = request.match_info['bike_type_id']
         search_parameters = extract_search_query_parameters(request.rel_url.query)
-        bikes, total = await self.dao_search_bikes(bike_type_id, search_parameters)
+        bikes, total = await self.dao_search_bikes({**search_parameters, "bike_type_id": bike_type_id})
         return web.json_response({"items": bikes, "total": total})
 
     async def add_bike(self, request):

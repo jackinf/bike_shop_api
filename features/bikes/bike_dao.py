@@ -2,7 +2,7 @@ class BikeDao:
     async def dao_search_bike_types(self, search_parameters):
         pass
 
-    async def dao_search_bikes(self, bike_type_id, search_parameters):
+    async def dao_search_bikes(self, search_parameters):
         pass
 
     async def dao_get_bike(self, bike) -> str:

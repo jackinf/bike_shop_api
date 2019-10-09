@@ -1,8 +1,8 @@
 import random
 from datetime import datetime
-
+from peewee import JOIN
 from dal.relational_db import db
-from dal.relational_db.models import Bike, BikeType
+from dal.relational_db.models import Bike, BikeType, User, BikeStatus
 from features.bikes.bike_dao import BikeDao
 from decorators.async_wrapper import async_wrapper
 from helpers import from_date_to_str
@@ -25,15 +25,22 @@ class SqlBikeDao(BikeDao):
         filter_keyword = search_parameters.get('filter_keyword')
 
         sort_options = {
-            "title": lambda ref: ref.order_by(BikeType.title if order_direction == 'desc' else BikeType.title.desc()),
-            "description": lambda ref: ref.order_by(BikeType.description if order_direction == 'desc' else BikeType.description.desc()),
-            "stars": lambda ref: ref.order_by(BikeType.stars if order_direction == 'desc' else BikeType.stars.desc()),
-            "created_on": lambda ref: ref.order_by(BikeType.created_on if order_direction == 'desc' else BikeType.created_on.desc()),
+            "title": lambda ref: ref.order_by(
+                BikeType.title.desc() if order_direction == 'desc' else BikeType.title
+            ),
+            "description": lambda ref: ref.order_by(
+                BikeType.description.desc() if order_direction == 'desc' else BikeType.description
+            ),
+            "stars": lambda ref: ref.order_by(
+                BikeType.stars.desc() if order_direction == 'desc' else BikeType.stars
+            ),
+            "created_on": lambda ref: ref.order_by(
+                BikeType.created_on.desc() if order_direction == 'desc' else BikeType.created_on
+            ),
         }
 
-        query = BikeType.select()
-        query = self._apply_sort(query, order_column, sort_options)
-        if filter_keyword is not None:
+        query = self._apply_sort(BikeType.select(), order_column, sort_options)
+        if filter_keyword is not None and filter_keyword != '':
             query = query.where(BikeType.title.contains(filter_keyword))
         query = query.paginate(page + 1, rows_per_page)
         results = self._map_dao_search_bike_types_query_results(query)
@@ -41,25 +48,48 @@ class SqlBikeDao(BikeDao):
         return results, total
 
     @async_wrapper
-    def dao_search_bikes(self, bike_type_id, search_parameters):
+    def dao_search_bikes(self, search_parameters):
         page = search_parameters.get('page')
         rows_per_page = search_parameters.get('rows_per_page')
         order_direction = search_parameters.get('order_direction')
         order_column = search_parameters.get('order_column')
         filter_keyword = search_parameters.get('filter_keyword')
+        bike_type_id = search_parameters.get('bike_type_id', None)
+        is_public = search_parameters.get('is_public', None)
+
+        query = Bike.select(Bike, BikeType)\
+            .join(BikeType, JOIN.LEFT_OUTER, on=(Bike.bike_type == BikeType.id))\
+            .join(User, JOIN.LEFT_OUTER, on=(Bike.user_id == User.id))\
+            .join(BikeStatus, JOIN.LEFT_OUTER, on=(Bike.status_key == BikeStatus.the_key))
 
         sort_options = {
-            "user": lambda ref: ref.order_by(Bike.user_id if order_direction == 'desc' else Bike.user_id.desc()),          # TODO: order by email
-            "status": lambda ref: ref.order_by(Bike.status_key if order_direction == 'desc' else Bike.status_key.desc()),  # TODO: order by status value
-            "created_on": lambda ref: ref.order_by(Bike.created_on if order_direction == 'desc' else Bike.created_on.desc()),
-            "purchase_price": lambda ref: ref.order_by(Bike.purchase_price if order_direction == 'desc' else Bike.purchase_price.desc()),
-            "selling_price": lambda ref: ref.order_by(Bike.selling_price if order_direction == 'desc' else Bike.selling_price.desc()),
+            "user": lambda ref: ref.order_by(
+                Bike.user_id.email.desc() if order_direction == 'desc' else Bike.user_id.email
+            ),
+            "status": lambda ref: ref.order_by(
+                Bike.status_key.value.desc() if order_direction == 'desc' else Bike.status_key.value
+            ),
+            "created_on": lambda ref: ref.order_by(
+                Bike.created_on.desc() if order_direction == 'desc' else Bike.created_on
+            ),
+            "purchase_price": lambda ref: ref.order_by(
+                Bike.purchase_price.desc() if order_direction == 'desc' else Bike.purchase_price
+            ),
+            "selling_price": lambda ref: ref.order_by(
+                Bike.selling_price.desc() if order_direction == 'desc' else Bike.selling_price
+            ),
         }
 
-        query = Bike.select(Bike, BikeType).join(BikeType).where(Bike.bike_type == bike_type_id)
         query = self._apply_sort(query, order_column, sort_options)
-        if filter_keyword is not None:
-            query = query.where(Bike.bike_type.title.contains(filter_keyword))
+
+        if filter_keyword is not None and filter_keyword != '':
+            query = query.where(
+                Bike.user_id.email.contains(filter_keyword) | Bike.status_key.value.contains(filter_keyword)
+            )
+        if bike_type_id is not None:
+            query = query.where(Bike.bike_type == bike_type_id)
+        if is_public is not None:
+            query = query.where(Bike.is_public == is_public)
 
         # Page numbers are 1-based, so appending 1 to page
         query = query.paginate(page + 1, rows_per_page).prefetch(BikeType)
@@ -126,17 +156,21 @@ class SqlBikeDao(BikeDao):
     def _map_dao_search_bikes_query_result(self, query):
         results = []
         for item in query:
-            try:
-                user_email = item.user_id.email
-            except:
-                user_email = None
-
             result = {
                 "id": str(item.id),
-                "user": user_email,
-                # "status": item.status_key.value,
+                "is_public": item.is_public,
                 "created_on": from_date_to_str(item.created_on)
             }
+
+            try:
+                result["user"] = item.user_id.email
+            except:
+                result["user"] = None
+
+            try:
+                result["status"] = item.status_key.value
+            except:
+                result["status"] = None
 
             try:
                 result["purchase_price"] = float(item.purchase_price)

@@ -1,5 +1,5 @@
 from peewee import Model, CharField, DateTimeField, IntegerField, DecimalField, UUIDField, SmallIntegerField, \
-    ForeignKeyField, CompositeKey
+    ForeignKeyField, CompositeKey, BooleanField
 
 from dal.relational_db import db
 
@@ -65,8 +65,9 @@ class Bike(BaseModel):
     bike_type = ForeignKeyField(BikeType, backref="bikes", column_name='bike_type_id')
     purchase_price = DecimalField()
     selling_price = DecimalField()
-    # status_key = ForeignKeyField(BikeStatus, backref="bikes")  # TODO: fix
+    status_key = ForeignKeyField(BikeStatus, backref="bikes", column_name="status_key")  # TODO: fix
     user_id = ForeignKeyField(User, backref="bikes", column_name='user_id')
+    is_public = BooleanField()
 
     class Meta:
         database = db
