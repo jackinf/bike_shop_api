@@ -5,7 +5,7 @@
 -- Dumped from database version 11.5 (Debian 11.5-1.pgdg90+1)
 -- Dumped by pg_dump version 11.5
 
--- Started on 2019-10-06 11:21:42
+-- Started on 2019-10-09 20:11:11
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -27,7 +27,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
 
 
 --
--- TOC entry 2935 (class 0 OID 0)
+-- TOC entry 2937 (class 0 OID 0)
 -- Dependencies: 2
 -- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner:
 --
@@ -71,7 +71,8 @@ CREATE TABLE public.bike (
     updated_on timestamp without time zone,
     created_by uuid,
     updated_by uuid,
-    bike_type_id uuid
+    bike_type_id uuid,
+    is_public bit(1) DEFAULT '0'::"bit" NOT NULL
 );
 
 
@@ -158,32 +159,32 @@ CREATE TABLE public.user_role (
 ALTER TABLE public.user_role OWNER TO postgres;
 
 --
--- TOC entry 2926 (class 0 OID 16428)
+-- TOC entry 2928 (class 0 OID 16428)
 -- Dependencies: 199
 -- Data for Name: bike; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.bike (id, purchase_price, selling_price, status_key, user_id, created_on, updated_on, created_by, updated_by, bike_type_id) FROM stdin;
-a6f08dde-e7a6-11e9-9a32-0242ac110002	1346	877	2	\N	2019-10-05 21:30:56.28447	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002
-a6f16614-e7a6-11e9-9a32-0242ac110002	516	1684	1	\N	2019-10-05 21:30:56.29145	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002
-a6f22266-e7a6-11e9-9a32-0242ac110002	1972	878	0	\N	2019-10-05 21:30:56.296449	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002
-a6f2da30-e7a6-11e9-9a32-0242ac110002	1355	485	1	\N	2019-10-05 21:30:56.301449	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002
-a6f383a4-e7a6-11e9-9a32-0242ac110002	1127	421	2	\N	2019-10-05 21:30:56.305754	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002
-a6f4195e-e7a6-11e9-9a32-0242ac110002	1265	135	1	\N	2019-10-05 21:30:56.309765	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002
-a6f4a946-e7a6-11e9-9a32-0242ac110002	1625	1305	2	\N	2019-10-05 21:30:56.313762	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002
-a6f53cee-e7a6-11e9-9a32-0242ac110002	335	1553	0	\N	2019-10-05 21:30:56.316774	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002
-a6f5cff6-e7a6-11e9-9a32-0242ac110002	1307	101	1	\N	2019-10-05 21:30:56.320773	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002
-a6f677da-e7a6-11e9-9a32-0242ac110002	1302	1011	2	\N	2019-10-05 21:30:56.324762	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002
-a6f71438-e7a6-11e9-9a32-0242ac110002	480	1785	2	\N	2019-10-05 21:30:56.328771	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002
-a6f7a3bc-e7a6-11e9-9a32-0242ac110002	1278	1331	0	\N	2019-10-05 21:30:56.332763	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002
-a6f833ae-e7a6-11e9-9a32-0242ac110002	1449	1484	0	\N	2019-10-05 21:30:56.336763	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002
-a6f8c17a-e7a6-11e9-9a32-0242ac110002	862	1652	1	\N	2019-10-05 21:30:56.339773	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002
-a6f94532-e7a6-11e9-9a32-0242ac110002	1216	855	1	\N	2019-10-05 21:30:56.343763	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002
+COPY public.bike (id, purchase_price, selling_price, status_key, user_id, created_on, updated_on, created_by, updated_by, bike_type_id, is_public) FROM stdin;
+a6f08dde-e7a6-11e9-9a32-0242ac110002	1346	877	2	\N	2019-10-05 21:30:56.28447	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002	0
+a6f16614-e7a6-11e9-9a32-0242ac110002	516	1684	1	\N	2019-10-05 21:30:56.29145	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002	0
+a6f22266-e7a6-11e9-9a32-0242ac110002	1972	878	0	\N	2019-10-05 21:30:56.296449	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002	0
+a6f2da30-e7a6-11e9-9a32-0242ac110002	1355	485	1	\N	2019-10-05 21:30:56.301449	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002	0
+a6f383a4-e7a6-11e9-9a32-0242ac110002	1127	421	2	\N	2019-10-05 21:30:56.305754	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002	0
+a6f4195e-e7a6-11e9-9a32-0242ac110002	1265	135	1	\N	2019-10-05 21:30:56.309765	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002	0
+a6f4a946-e7a6-11e9-9a32-0242ac110002	1625	1305	2	\N	2019-10-05 21:30:56.313762	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002	0
+a6f53cee-e7a6-11e9-9a32-0242ac110002	335	1553	0	\N	2019-10-05 21:30:56.316774	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002	0
+a6f5cff6-e7a6-11e9-9a32-0242ac110002	1307	101	1	\N	2019-10-05 21:30:56.320773	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002	0
+a6f677da-e7a6-11e9-9a32-0242ac110002	1302	1011	2	\N	2019-10-05 21:30:56.324762	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002	0
+a6f71438-e7a6-11e9-9a32-0242ac110002	480	1785	2	\N	2019-10-05 21:30:56.328771	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002	0
+a6f7a3bc-e7a6-11e9-9a32-0242ac110002	1278	1331	0	\N	2019-10-05 21:30:56.332763	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002	0
+a6f833ae-e7a6-11e9-9a32-0242ac110002	1449	1484	0	\N	2019-10-05 21:30:56.336763	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002	0
+a6f8c17a-e7a6-11e9-9a32-0242ac110002	862	1652	1	\N	2019-10-05 21:30:56.339773	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002	0
+a6f94532-e7a6-11e9-9a32-0242ac110002	1216	855	1	\N	2019-10-05 21:30:56.343763	\N	\N	\N	4c9c987c-e798-11e9-a446-0242ac110002	0
 \.
 
 
 --
--- TOC entry 2929 (class 0 OID 16451)
+-- TOC entry 2931 (class 0 OID 16451)
 -- Dependencies: 202
 -- Data for Name: bike_status; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -196,7 +197,7 @@ COPY public.bike_status (id, value) FROM stdin;
 
 
 --
--- TOC entry 2924 (class 0 OID 16405)
+-- TOC entry 2926 (class 0 OID 16405)
 -- Dependencies: 197
 -- Data for Name: bike_type; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -212,7 +213,7 @@ COPY public.bike_type (id, title, description, stars, created_on, updated_on, cr
 
 
 --
--- TOC entry 2927 (class 0 OID 16437)
+-- TOC entry 2929 (class 0 OID 16437)
 -- Dependencies: 200
 -- Data for Name: role; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -225,27 +226,33 @@ ef76694c-e7ac-11e9-95c9-0242ac110002	\N	\N	\N	\N	guest
 
 
 --
--- TOC entry 2925 (class 0 OID 16414)
+-- TOC entry 2927 (class 0 OID 16414)
 -- Dependencies: 198
 -- Data for Name: user; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."user" (id, created_on, updated_on, created_by, updated_by, email, name) FROM stdin;
+eb3dbd38-e81c-11e9-91c1-0242ac110002	\N	\N	\N	\N	zeka.rum@gmail.com	\N
+eb3e99ec-e81c-11e9-91c1-0242ac110002	\N	\N	\N	\N	user@test.com	\N
+eb3f70a6-e81c-11e9-91c1-0242ac110002	\N	\N	\N	\N	guest@test.com	\N
 \.
 
 
 --
--- TOC entry 2928 (class 0 OID 16446)
+-- TOC entry 2930 (class 0 OID 16446)
 -- Dependencies: 201
 -- Data for Name: user_role; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.user_role (user_id, role_id) FROM stdin;
+eb3dbd38-e81c-11e9-91c1-0242ac110002	ef73d59c-e7ac-11e9-95c9-0242ac110002
+eb3e99ec-e81c-11e9-91c1-0242ac110002	ef75558e-e7ac-11e9-95c9-0242ac110002
+eb3f70a6-e81c-11e9-91c1-0242ac110002	ef76694c-e7ac-11e9-95c9-0242ac110002
 \.
 
 
 --
--- TOC entry 2784 (class 2606 OID 16436)
+-- TOC entry 2785 (class 2606 OID 16436)
 -- Name: bike bike_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -254,7 +261,7 @@ ALTER TABLE ONLY public.bike
 
 
 --
--- TOC entry 2790 (class 2606 OID 16465)
+-- TOC entry 2791 (class 2606 OID 16465)
 -- Name: bike_status bike_status_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -263,7 +270,7 @@ ALTER TABLE ONLY public.bike_status
 
 
 --
--- TOC entry 2780 (class 2606 OID 16413)
+-- TOC entry 2781 (class 2606 OID 16413)
 -- Name: bike_type bike_type_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -272,7 +279,7 @@ ALTER TABLE ONLY public.bike_type
 
 
 --
--- TOC entry 2786 (class 2606 OID 16445)
+-- TOC entry 2787 (class 2606 OID 16445)
 -- Name: role role_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -281,7 +288,7 @@ ALTER TABLE ONLY public.role
 
 
 --
--- TOC entry 2782 (class 2606 OID 16421)
+-- TOC entry 2783 (class 2606 OID 16421)
 -- Name: user user_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -290,7 +297,7 @@ ALTER TABLE ONLY public."user"
 
 
 --
--- TOC entry 2788 (class 2606 OID 16450)
+-- TOC entry 2789 (class 2606 OID 16450)
 -- Name: user_role user_role_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -299,7 +306,7 @@ ALTER TABLE ONLY public.user_role
 
 
 --
--- TOC entry 2795 (class 2606 OID 16473)
+-- TOC entry 2796 (class 2606 OID 16473)
 -- Name: bike bike_type_id_fkey_bike_type; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -308,8 +315,8 @@ ALTER TABLE ONLY public.bike
 
 
 --
--- TOC entry 2936 (class 0 OID 0)
--- Dependencies: 2795
+-- TOC entry 2938 (class 0 OID 0)
+-- Dependencies: 2796
 -- Name: CONSTRAINT bike_type_id_fkey_bike_type ON bike; Type: COMMENT; Schema: public; Owner: postgres
 --
 
@@ -317,7 +324,7 @@ COMMENT ON CONSTRAINT bike_type_id_fkey_bike_type ON public.bike IS 'column_fkey
 
 
 --
--- TOC entry 2791 (class 2606 OID 24601)
+-- TOC entry 2792 (class 2606 OID 24601)
 -- Name: bike_type created_by_fkey_bike_type_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -326,7 +333,7 @@ ALTER TABLE ONLY public.bike_type
 
 
 --
--- TOC entry 2797 (class 2606 OID 24591)
+-- TOC entry 2798 (class 2606 OID 24591)
 -- Name: bike created_by_fkey_bike_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -335,7 +342,7 @@ ALTER TABLE ONLY public.bike
 
 
 --
--- TOC entry 2799 (class 2606 OID 24611)
+-- TOC entry 2801 (class 2606 OID 24611)
 -- Name: role created_by_fkey_role_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -344,7 +351,7 @@ ALTER TABLE ONLY public.role
 
 
 --
--- TOC entry 2793 (class 2606 OID 24621)
+-- TOC entry 2794 (class 2606 OID 24621)
 -- Name: user created_by_fkey_user_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -353,7 +360,7 @@ ALTER TABLE ONLY public."user"
 
 
 --
--- TOC entry 2802 (class 2606 OID 24581)
+-- TOC entry 2804 (class 2606 OID 24581)
 -- Name: user_role role_id_fkey_role; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -362,7 +369,16 @@ ALTER TABLE ONLY public.user_role
 
 
 --
--- TOC entry 2792 (class 2606 OID 24606)
+-- TOC entry 2800 (class 2606 OID 24632)
+-- Name: bike status_key_fkey_bike_bike_status; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.bike
+    ADD CONSTRAINT status_key_fkey_bike_bike_status FOREIGN KEY (status_key) REFERENCES public.bike_status(id) NOT VALID;
+
+
+--
+-- TOC entry 2793 (class 2606 OID 24606)
 -- Name: bike_type updated_by_fkey_bike_type_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -371,7 +387,7 @@ ALTER TABLE ONLY public.bike_type
 
 
 --
--- TOC entry 2798 (class 2606 OID 24596)
+-- TOC entry 2799 (class 2606 OID 24596)
 -- Name: bike updated_by_fkey_bike_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -380,7 +396,7 @@ ALTER TABLE ONLY public.bike
 
 
 --
--- TOC entry 2800 (class 2606 OID 24616)
+-- TOC entry 2802 (class 2606 OID 24616)
 -- Name: role updated_by_fkey_role_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -389,7 +405,7 @@ ALTER TABLE ONLY public.role
 
 
 --
--- TOC entry 2794 (class 2606 OID 24626)
+-- TOC entry 2795 (class 2606 OID 24626)
 -- Name: user updated_by_fkey_user_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -398,7 +414,7 @@ ALTER TABLE ONLY public."user"
 
 
 --
--- TOC entry 2801 (class 2606 OID 24576)
+-- TOC entry 2803 (class 2606 OID 24576)
 -- Name: user_role user_id_fkey_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -407,7 +423,7 @@ ALTER TABLE ONLY public.user_role
 
 
 --
--- TOC entry 2796 (class 2606 OID 24586)
+-- TOC entry 2797 (class 2606 OID 24586)
 -- Name: bike user_id_fkey_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -415,7 +431,7 @@ ALTER TABLE ONLY public.bike
     ADD CONSTRAINT user_id_fkey_user FOREIGN KEY (user_id) REFERENCES public."user"(id) NOT VALID;
 
 
--- Completed on 2019-10-06 11:21:43
+-- Completed on 2019-10-09 20:11:11
 
 --
 -- PostgreSQL database dump complete
