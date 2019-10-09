@@ -158,8 +158,10 @@ class SqlBikeDao(BikeDao):
         for item in query:
             result = {
                 "id": str(item.id),
+                "title": item.bike_type.title,
                 "is_public": item.is_public,
-                "created_on": from_date_to_str(item.created_on)
+                "created_on": from_date_to_str(item.created_on),
+                "image": "https://cdn.shopify.com/s/files/1/1772/1703/t/14/assets/bike-side-floating-shadow.png?2856062"
             }
 
             try:
