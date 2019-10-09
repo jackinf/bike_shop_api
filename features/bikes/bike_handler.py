@@ -17,7 +17,7 @@ class BikeHandler(BikeDao):
     @swagger_path("features/bikes/swagger/search.yaml")
     async def search_bikes(self, request):
         search_parameters = extract_search_query_parameters(request.rel_url.query)
-        bikes, total = await self.dao_search_bikes(search_parameters)
+        bikes, total = await self.dao_search_bikes({**search_parameters, "is_public": True})
         return web.json_response({"items": bikes, "total": total})
 
     async def search_bikes_of_bike_type(self, request):

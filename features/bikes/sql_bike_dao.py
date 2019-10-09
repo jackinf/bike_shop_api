@@ -89,7 +89,7 @@ class SqlBikeDao(BikeDao):
         if bike_type_id is not None:
             query = query.where(Bike.bike_type == bike_type_id)
         if is_public is not None:
-            query = query.where(Bike.is_public == is_public)
+            query = query.where(Bike.is_public)
 
         # Page numbers are 1-based, so appending 1 to page
         query = query.paginate(page + 1, rows_per_page).prefetch(BikeType)
