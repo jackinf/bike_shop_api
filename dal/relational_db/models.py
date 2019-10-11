@@ -65,7 +65,7 @@ class Bike(BaseModel):
     bike_type = ForeignKeyField(BikeType, backref="bikes", column_name='bike_type_id')
     purchase_price = DecimalField()
     selling_price = DecimalField()
-    status_key = ForeignKeyField(BikeStatus, backref="bikes", column_name="status_key")  # TODO: fix
+    status_key = ForeignKeyField(BikeStatus, backref="bikes", column_name="status_key")
     user_id = ForeignKeyField(User, backref="bikes", column_name='user_id')
     is_public = BooleanField()
 
