@@ -1,8 +1,8 @@
 import random
 from pprint import pprint
 
-from dal.relational_db import db
-from dal.relational_db.models import BikeType, Bike
+from infrastructure.relational_db import db
+from infrastructure.relational_db.models import BikeType, Bike
 from helpers import random_string
 
 db.connect()

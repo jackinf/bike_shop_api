@@ -7,7 +7,7 @@ from firebase_admin import credentials
 PRIVATE_KEY_VALUE = "PRIVATE_KEY_VALUE"
 
 
-def init():
+def firebase_init():
     """Documentation about initialization of the Firebase application - https://firebase.google.com/docs/admin/setup"""
 
     f = open("service-account.json", "w+")

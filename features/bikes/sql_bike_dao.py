@@ -1,8 +1,8 @@
 import random
 from datetime import datetime
 from peewee import JOIN
-from dal.relational_db import db
-from dal.relational_db.models import Bike, BikeType, User, BikeStatus
+from infrastructure.relational_db import db
+from infrastructure.relational_db.models import Bike, BikeType, User, BikeStatus
 from features.bikes.bike_dao import BikeDao
 from decorators.async_wrapper import async_wrapper
 from helpers import from_date_to_str

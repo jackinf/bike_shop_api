@@ -1,7 +1,7 @@
 from peewee import Model, CharField, DateTimeField, IntegerField, DecimalField, UUIDField, SmallIntegerField, \
     ForeignKeyField, CompositeKey, BooleanField
 
-from dal.relational_db import db
+from infrastructure.relational_db import db
 
 
 class BaseModel(Model):

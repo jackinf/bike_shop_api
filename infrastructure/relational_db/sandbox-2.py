@@ -1,7 +1,7 @@
 from pprint import pprint
 
-from dal.relational_db import db
-from dal.relational_db.models import UserRole, User
+from infrastructure.relational_db import db
+from infrastructure.relational_db.models import UserRole, User
 
 db.connect()
 

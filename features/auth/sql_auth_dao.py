@@ -1,8 +1,8 @@
 from datetime import datetime
 
 from constants import UserRoleName
-from dal.relational_db import db
-from dal.relational_db.models import User, UserRole, Role
+from infrastructure.relational_db import db
+from infrastructure.relational_db.models import User, UserRole, Role
 from decorators.async_wrapper import async_wrapper
 from features.auth.auth_dao import AuthDao
 
