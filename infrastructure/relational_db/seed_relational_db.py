@@ -1,8 +1,9 @@
 import datetime
+import random
 
 from constants import UserRoleName, BikeStatusKeys
 from infrastructure.relational_db import db
-from infrastructure.relational_db.models import Role, BikeStatus, BikeType, User, UserRole
+from infrastructure.relational_db.models import Role, BikeStatus, BikeType, User, UserRole, Bike
 
 
 def seed_relational_db(use_test_data: bool):
@@ -37,9 +38,12 @@ def seed_relational_db(use_test_data: bool):
                     created_on=datetime.datetime.now(tz=None),
                 )
 
-        check_or_create_bike_type(title="Abc", description="Description abc", stars=3)
-        check_or_create_bike_type(title="Def", description="Description def", stars=3)
-        check_or_create_bike_type(title="cDe", description="Description cde", stars=4)
+        bike_title_1 = "Abc"
+        bike_title_2 = "Def"
+        bike_title_3 = "cDe"
+        check_or_create_bike_type(title=bike_title_1, description="Description abc", stars=3)
+        check_or_create_bike_type(title=bike_title_2, description="Description def", stars=3)
+        check_or_create_bike_type(title=bike_title_3, description="Description cde", stars=4)
 
         def check_or_create_user(**kwargs):
             if len(User.select().where(User.email == kwargs["email"]).limit(1)) == 0:
@@ -58,6 +62,25 @@ def seed_relational_db(use_test_data: bool):
         check_or_create_user_role_pair(email="zeka.rum@gmail.com", role_name=UserRoleName.admin)
         check_or_create_user_role_pair(email="user@test.com", role_name=UserRoleName.user)
         check_or_create_user_role_pair(email="guest@test.com", role_name=UserRoleName.guest)
+
+        def check_or_create_bikes(**kwargs):
+            bike_type = BikeType.select().where(BikeType.title == kwargs["title"]).limit(1)[0]
+            if len(Bike.select().where(Bike.bike_type == bike_type.id).limit(1)) == 0:
+                bike_status_titles = ['available', 'in cart', 'sold']
+                bike_statuses = list(BikeStatus.select().where(BikeStatus.value in bike_status_titles))
+                for i in range(0, random.choice([3, 4, 5])):
+                    Bike.create(
+                        bike_type=bike_type.id,
+                        purchase_price=random.randint(200, 2000),
+                        selling_price=random.randint(200, 2000),
+                        status_key=random.choice(bike_statuses).the_key,
+                        is_public=random.choice([True, False]),
+                        created_on=datetime.datetime.now(tz=None)
+                    )
+
+        check_or_create_bikes(title=bike_title_1)
+        check_or_create_bikes(title=bike_title_2)
+        check_or_create_bikes(title=bike_title_3)
 
     # DEMO DATA - END
     # ====================================
