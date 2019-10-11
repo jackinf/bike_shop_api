@@ -27,13 +27,16 @@ def firebase_init():
         if private_key is None:
             raise Exception("Private key for service account is not defined")
 
-        output = output.replace(PRIVATE_KEY_VALUE, )
+        output = output.replace(PRIVATE_KEY_VALUE, private_key)
         f.write(output)
         f.close()
 
-        firebase_admin.initialize_app(
-            options={"databaseURL": os.getenv('BIKE_SHOP_DATABASE_URL')},  # "https://bikeshop-123f1.firebaseio.com"
-            credential=credentials.Certificate('service-account.json')
-        )
+        try:
+            firebase_admin.initialize_app(
+                options={"databaseURL": os.getenv('BIKE_SHOP_DATABASE_URL')},  # "https://bikeshop-123f1.firebaseio.com"
+                credential=credentials.Certificate('service-account.json')
+            )
+        except:
+            raise Exception("Failed to initialize firebase admin")
     else:
         firebase_admin.initialize_app(options={"databaseURL": os.getenv('BIKE_SHOP_DATABASE_URL')})
