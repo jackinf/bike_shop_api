@@ -26,6 +26,8 @@ docker run --rm --name pg-docker -e POSTGRES_PASSWORD=docker -d -p 5432:5432 -v 
 BIKESHOP_DATABASE=postgresql://user:pass@host:port/bikeshop
 ```
 
+Make sure that you create database named `bikeshop` and the script `infrastructure/relational_db/schema.db` has been run.
+
 ### Installing dependencies
 
 Make sure that Python 3.3+ and PIP 18+ are installed
