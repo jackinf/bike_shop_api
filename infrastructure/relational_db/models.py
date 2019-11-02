@@ -72,3 +72,13 @@ class Bike(BaseModel):
     class Meta:
         database = db
         table_name = 'bike'
+
+
+class Cart(Model):
+    id = UUIDField(primary_key=True)
+    bike_id = ForeignKeyField(Bike, backref="cart", column_name="bike_id")
+    user_id = ForeignKeyField(User, backref="cart", column_name="user_id")
+
+    class Meta:
+        database = db
+        table_name = 'cart'

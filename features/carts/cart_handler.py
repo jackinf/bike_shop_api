@@ -41,7 +41,7 @@ class CartHandler(CartDao):
             return web.json_response("Unexpected behaviour", status=500)
         (item, cart, bike) = result
         if item is not None:
-            return web.json_response({"ok": False, "reason": "There is already a bike in the cart"}, status=200)
+            return web.json_response({"ok": False, "reason": "There is already a bike in the cart"}, status=400)
 
         await super().add_item_into_cart(cart["cart_id"], bike["bike_id"])
 
