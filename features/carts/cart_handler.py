@@ -4,16 +4,8 @@ from aiohttp_swagger import *
 from constants import RequestContextKeys
 from features.auth.auth_dao import AuthDao
 from features.bikes.bike_dao import BikeDao
+from helpers import extract_email_from_request
 from .cart_dao import CartDao
-
-
-def _extract_email(request):
-    email = None
-    if RequestContextKeys.email in request:
-        email = request[RequestContextKeys.email]
-    elif 'email' in request.rel_url.query:
-        email = request.rel_url.query["email"]
-    return email
 
 
 # noinspection PyUnusedLocal
@@ -79,7 +71,7 @@ class CartHandler(CartDao, AuthDao, BikeDao):
         return (user, bike), None
 
     async def _get_current_user(self, request):
-        email = _extract_email(request)
+        email = extract_email_from_request(request)
         if email is None:
             return None, "`email` query parameter must be provided"
         user = await super().dao_get_user_by_email(email)

@@ -22,3 +22,19 @@ async def authMiddleware(request, handler):
     except ValueError as e:
         print(e)
         raise HTTPForbidden()
+
+
+@web.middleware
+async def optionalAuthMiddleware(request, handler):
+    authorization_header = request.headers.get(HeaderKeys.authorization)
+    if authorization_header is None:
+        return await handler(request)
+    try:
+        token = authorization_header.split(' ')[-1]
+        auth_user = auth.verify_id_token(token)
+        email = auth_user["email"]
+        request[RequestContextKeys.auth_user] = auth_user
+        request[RequestContextKeys.email] = email
+    except:
+        pass
+    return await handler(request)

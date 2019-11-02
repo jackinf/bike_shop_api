@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from exceptions import ItemNotFoundException
+from helpers import from_date_to_str
 from infrastructure.relational_db import db
 from infrastructure.relational_db.models import User, CartItem
 from features.carts.cart_dao import CartDao
@@ -16,7 +17,7 @@ class SqlCartDao(CartDao):
         db.close()
 
     @async_wrapper
-    def dao_get_single_cart(self, user_id, bike_id):
+    def dao_get_single_cart_item(self, user_id, bike_id):
         single_cart_query = CartItem \
             .select() \
             .where(CartItem.user_id == user_id and CartItem.bike_id == bike_id) \
@@ -34,7 +35,10 @@ class SqlCartDao(CartDao):
             .join_from(CartItem, User) \
             .where(CartItem.user_id == user_id)
         return [{
-            "bike_id": str(cart.bike_id.id)
+            "bike_id": str(cart.bike_id.id),
+            "title": cart.bike_id.bike_type.title,
+            "created_on": from_date_to_str(cart.bike_id.created_on),
+            "image": "https://cdn.shopify.com/s/files/1/1772/1703/t/14/assets/bike-side-floating-shadow.png?2856062"
         } for cart in get_items_query]
 
 

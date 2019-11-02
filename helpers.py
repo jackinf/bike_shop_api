@@ -2,6 +2,8 @@ import datetime
 import random
 import string
 
+from constants import RequestContextKeys
+
 
 def random_string(string_length=10):
     """Generate a random string of fixed length """
@@ -46,3 +48,12 @@ def extract_search_query_parameters(query):
         "order_column": order_column,
         "filter_keyword": filter_keyword
     }
+
+
+def extract_email_from_request(request):
+    email = None
+    if RequestContextKeys.email in request:
+        email = request[RequestContextKeys.email]
+    elif 'email' in request.rel_url.query:
+        email = request.rel_url.query["email"]
+    return email

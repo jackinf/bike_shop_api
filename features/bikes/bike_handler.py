@@ -4,7 +4,7 @@ from aiohttp_swagger import *
 
 from exceptions import ArgumentException, ItemNotFoundException
 from features.bikes.bike_dao import BikeDao
-from helpers import extract_search_query_parameters
+from helpers import extract_search_query_parameters, extract_email_from_request
 
 
 # noinspection PyUnusedLocal
@@ -17,7 +17,8 @@ class BikeHandler(BikeDao):
     @swagger_path("features/bikes/swagger/search.yaml")
     async def search_bikes(self, request):
         search_parameters = extract_search_query_parameters(request.rel_url.query)
-        bikes, total = await self.dao_search_bikes({**search_parameters, "is_public": True})
+        email = extract_email_from_request(request)
+        bikes, total = await self.dao_search_bikes({**search_parameters, "is_public": True, "email": email})
         return web.json_response({"items": bikes, "total": total})
 
     async def search_bikes_of_bike_type(self, request):

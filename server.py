@@ -4,12 +4,13 @@ import aiohttp_swagger
 from features import bikes, boxes, carts, auth, status
 import config
 import infrastructure
+from middlewares.authMiddleware import optionalAuthMiddleware
 
 # Initialize DAL layer as well as settings required for authentication
 infrastructure.init()
 
 # Register all the routes for all the features in the application
-app = web.Application()
+app = web.Application(middlewares=[optionalAuthMiddleware])
 bikes.register_routes(app)
 boxes.register_routes(app)
 carts.register_routes(app)

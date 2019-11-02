@@ -2,7 +2,7 @@ import random
 from datetime import datetime
 from peewee import JOIN
 from infrastructure.relational_db import db
-from infrastructure.relational_db.models import Bike, BikeType, User, BikeStatus
+from infrastructure.relational_db.models import Bike, BikeType, User, BikeStatus, CartItem
 from features.bikes.bike_dao import BikeDao
 from decorators.async_wrapper import async_wrapper
 from helpers import from_date_to_str
@@ -39,7 +39,8 @@ class SqlBikeDao(BikeDao):
             ),
         }
 
-        query = self._apply_sort(BikeType.select(), order_column, sort_options)
+        base_query = BikeType.select()
+        query = self._apply_sort(base_query, order_column, sort_options)
         if filter_keyword is not None and filter_keyword != '':
             query = query.where(BikeType.title.contains(filter_keyword))
         query = query.paginate(page + 1, rows_per_page)
@@ -56,11 +57,13 @@ class SqlBikeDao(BikeDao):
         filter_keyword = search_parameters.get('filter_keyword')
         bike_type_id = search_parameters.get('bike_type_id', None)
         is_public = search_parameters.get('is_public', None)
+        email = search_parameters.get('email', None)
 
-        query = Bike.select(Bike, BikeType)\
-            .join(BikeType, JOIN.LEFT_OUTER, on=(Bike.bike_type == BikeType.id))\
-            .join(User, JOIN.LEFT_OUTER, on=(Bike.user_id == User.id))\
-            .join(BikeStatus, JOIN.LEFT_OUTER, on=(Bike.status_key == BikeStatus.the_key))
+        query = Bike.select(Bike, BikeType, CartItem) \
+            .join(BikeType, JOIN.LEFT_OUTER, on=(Bike.bike_type == BikeType.id)) \
+            .join(User, JOIN.LEFT_OUTER, on=(Bike.user_id == User.id)) \
+            .join(BikeStatus, JOIN.LEFT_OUTER, on=(Bike.status_key == BikeStatus.the_key)) \
+            .join_from(Bike, CartItem, JOIN.LEFT_OUTER)
 
         sort_options = {
             "user": lambda ref: ref.order_by(
@@ -92,8 +95,9 @@ class SqlBikeDao(BikeDao):
             query = query.where(Bike.is_public)
 
         # Page numbers are 1-based, so appending 1 to page
-        query = query.paginate(page + 1, rows_per_page).prefetch(BikeType)
-        results = self._map_dao_search_bikes_query_result(query)
+        query = query.paginate(page + 1, rows_per_page)
+        query = query.prefetch(BikeType)
+        results = self._map_dao_search_bikes_query_result(query, {"email": email})
         total = Bike.select().count()
         return results, total
 
@@ -153,7 +157,8 @@ class SqlBikeDao(BikeDao):
             results.append(result)
         return results
 
-    def _map_dao_search_bikes_query_result(self, query):
+    def _map_dao_search_bikes_query_result(self, query, extra):
+        email = extra.get('email', None)
         results = []
         for item in query:
             result = {
@@ -183,6 +188,13 @@ class SqlBikeDao(BikeDao):
                 result["selling_price"] = float(item.selling_price)
             except:
                 pass
+
+            result["in_cart"] = False
+            if email is not None:
+                for cart_item in item.cart:
+                    if cart_item.user_id.email == email:
+                        result["in_cart"] = True
+                        break
 
             results.append(result)
         return results
