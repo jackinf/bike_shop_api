@@ -1,6 +1,5 @@
 import datetime
 import random
-from pprint import pprint
 from peewee import JOIN
 
 from constants import UserRoleName, BikeStatusKeys
@@ -88,31 +87,16 @@ def seed_relational_db(use_test_data: bool):
             email = kwargs["email"]
             cart_already_exists_query = Cart.select().join(User).where(Cart.user_id.email == email).limit(1)
             if len(cart_already_exists_query) == 0:
-                # bikes_query = Bike.select(Bike, Cart) \
-                #     .join(Cart, JOIN.LEFT_OUTER, on=(Cart.bike_id == Bike.id)
-
-                # first_bike_not_in_cart_query = Bike.select(Bike, Cart)\
-                #     .join_from(Bike, Cart, JOIN.LEFT_OUTER)\
-                #     .where(Bike.cart is None);
-
-                # for bike in bike_cart_query:
-                #     pprint(bike.cart)
-
-                for bike in Bike.select():
-                    try:
-                        cart_id = bike.cart.id
-                    except:
-                        user = User.select().where(User.email == email).limit(1)[0]
-                        Cart.create(user_id=user.id, bike_id=bike.id, created_on=datetime.datetime.now(tz=None))
-                        break
-
-                # if len(first_bike_not_in_cart_query) != 0:
-                #     bike = first_bike_not_in_cart_query[0]
-                #     user = User.select().where(User.email == email).limit(1)[0]
-                #     Cart.create(user_id=user.id, bike_id=bike.id, created_on=datetime.datetime.now(tz=None))
+                get_first_bike_not_in_cart_query = Bike \
+                    .select() \
+                    .join_from(Bike, Cart, JOIN.LEFT_OUTER) \
+                    .where(Cart.id == None)
+                if len(get_first_bike_not_in_cart_query) > 0:
+                    bike = get_first_bike_not_in_cart_query[0]
+                    user = User.select().where(User.email == email).limit(1)[0]
+                    Cart.create(user_id=user.id, bike_id=bike.id, created_on=datetime.datetime.now(tz=None))
 
         check_or_create_cart_item_for_first_available_bike(email="zeka.rum@gmail.com")
-        # check_or_create_cart_item_for_first_available_bike(email="user@test.com")
 
     # DEMO DATA - END
     # ====================================
