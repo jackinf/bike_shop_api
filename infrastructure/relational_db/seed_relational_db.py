@@ -4,7 +4,7 @@ from peewee import JOIN
 
 from constants import UserRoleName, BikeStatusKeys
 from infrastructure.relational_db import db
-from infrastructure.relational_db.models import Role, BikeStatus, BikeType, User, UserRole, Bike, Cart
+from infrastructure.relational_db.models import Role, BikeStatus, BikeType, User, UserRole, Bike, CartItem
 
 
 def seed_relational_db(use_test_data: bool):
@@ -85,16 +85,16 @@ def seed_relational_db(use_test_data: bool):
 
         def check_or_create_cart_item_for_first_available_bike(**kwargs):
             email = kwargs["email"]
-            cart_already_exists_query = Cart.select().join(User).where(Cart.user_id.email == email).limit(1)
+            cart_already_exists_query = CartItem.select().join(User).where(CartItem.user_id.email == email).limit(1)
             if len(cart_already_exists_query) == 0:
                 get_first_bike_not_in_cart_query = Bike \
                     .select() \
-                    .join_from(Bike, Cart, JOIN.LEFT_OUTER) \
-                    .where(Cart.id == None)
+                    .join_from(Bike, CartItem, JOIN.LEFT_OUTER) \
+                    .where(CartItem.id == None)
                 if len(get_first_bike_not_in_cart_query) > 0:
                     bike = get_first_bike_not_in_cart_query[0]
                     user = User.select().where(User.email == email).limit(1)[0]
-                    Cart.create(user_id=user.id, bike_id=bike.id, created_on=datetime.datetime.now(tz=None))
+                    CartItem.create(user_id=user.id, bike_id=bike.id, created_on=datetime.datetime.now(tz=None))
 
         check_or_create_cart_item_for_first_available_bike(email="zeka.rum@gmail.com")
 

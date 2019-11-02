@@ -99,7 +99,7 @@ class SqlBikeDao(BikeDao):
 
     @async_wrapper
     def dao_get_bike(self, bike_id) -> Bike:
-        return Bike.select().where(Bike.id == bike_id).limit(1)
+        return Bike.select().where(Bike.id == bike_id).limit(1)[0]
 
     @async_wrapper
     def dao_add_bike(self, bike) -> str:

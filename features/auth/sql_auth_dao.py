@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from constants import UserRoleName
+from exceptions import ItemNotFoundException
 from infrastructure.relational_db import db
 from infrastructure.relational_db.models import User, UserRole, Role
 from decorators.async_wrapper import async_wrapper
@@ -30,6 +31,14 @@ class SqlAuthDao(AuthDao):
         return results
 
     @async_wrapper
-    def dao_get_user_by_email(self, email):
+    def dao_get_user_roles_by_email(self, email):
         roles = [x.role_id.name for x in UserRole.select().join(User).where(UserRole.user_id.email == email)]
         return roles
+
+    @async_wrapper
+    def dao_get_user_by_email(self, email):
+        single_user_query = User.select().where(User.email == email).limit(1)
+        if len(single_user_query) == 0:
+            raise ItemNotFoundException()
+        user = single_user_query[0]
+        return user

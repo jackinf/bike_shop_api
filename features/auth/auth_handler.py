@@ -8,7 +8,7 @@ from features.auth.auth_dao import AuthDao
 class AuthHandler(AuthDao):
     async def initialize_current_user(self, request):
         email = request[RequestContextKeys.auth_user]["email"]
-        user = await self.dao_get_user_by_email(email)
+        user = await self.dao_get_user_roles_by_email(email)
         if user is None:
             await self.dao_create_user(email=email)
         return web.json_response({"ok": True})
@@ -20,5 +20,5 @@ class AuthHandler(AuthDao):
 
     async def get_roles_for_current_user(self, request):
         email = request[RequestContextKeys.auth_user]["email"]
-        user = await self.dao_get_user_by_email(email)
+        user = await self.dao_get_user_roles_by_email(email)
         return web.json_response({"user": user})

@@ -14,7 +14,7 @@ class IsInRole(object):
             print(f"Decorator arguments: Role={self.role_name}, Email={email}")
 
             sql_dao = SqlAuthDao()
-            roles = await sql_dao.dao_get_user_by_email(email)
+            roles = await sql_dao.dao_get_user_roles_by_email(email)
             if self.role_name not in roles:
                 raise NotInRoleException("User is not allowed to see this page")
 

@@ -1,3 +1,6 @@
+from infrastructure.relational_db.models import Bike
+
+
 class BikeDao:
     async def dao_search_bike_types(self, search_parameters):
         pass
@@ -5,7 +8,7 @@ class BikeDao:
     async def dao_search_bikes(self, search_parameters):
         pass
 
-    async def dao_get_bike(self, bike) -> str:
+    async def dao_get_bike(self, bike) -> Bike:  # TODO: change to DB-neutral model
         pass
 
     async def dao_add_bike(self, bike) -> str:
