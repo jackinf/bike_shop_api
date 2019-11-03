@@ -1,5 +1,5 @@
 class CartDao:
-    async def dao_get_single_cart_item(self, cart_id):
+    async def dao_get_single_cart_item(self, user_id, bike_id):
         pass
 
     async def dao_get_items_from_cart(self, cart_id):

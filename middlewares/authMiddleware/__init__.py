@@ -1,4 +1,5 @@
 from aiohttp import web
+from aiohttp.hdrs import METH_OPTIONS
 from aiohttp.web_exceptions import HTTPForbidden
 from firebase_admin import auth
 
@@ -8,6 +9,10 @@ from exceptions import NotInRoleException
 
 @web.middleware
 async def authMiddleware(request, handler):
+    # This handles preflight CORS requests
+    if request.method == METH_OPTIONS:
+        return await handler(request)
+
     authorization_header = request.headers.get(HeaderKeys.authorization)
     if authorization_header is None:
         raise HTTPForbidden()

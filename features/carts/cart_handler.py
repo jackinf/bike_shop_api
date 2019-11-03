@@ -27,8 +27,12 @@ class CartHandler(CartDao, AuthDao, BikeDao):
         result, error = await self._extract_user_and_bike_ids_from_request(request)
         if error is not None:
             return web.json_response({"error": error}, status=400)
-
         user, bike = result
+
+        result, error = await super().dao_get_single_cart_item(user.id, bike.id)
+        if result is not None:
+            return web.json_response({"error": "Item is already in the cart"}, status=400)
+
         await super().dao_add_item_into_cart(user.id, bike.id)
         return web.json_response({"ok": True})
 
@@ -37,8 +41,12 @@ class CartHandler(CartDao, AuthDao, BikeDao):
         result, error = await self._extract_user_and_bike_ids_from_request(request)
         if error is not None:
             return web.json_response({"error": error}, status=400)
-
         user, bike = result
+
+        result, error = await super().dao_get_single_cart_item(user.id, bike.id)
+        if result is None:
+            return web.json_response({"error": "Item is not in the cart"}, status=400)
+
         await super().dao_delete_single_item_from_cart(user.id, bike.id)
         return web.json_response({"ok": True})
 

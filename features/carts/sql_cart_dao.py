@@ -23,10 +23,10 @@ class SqlCartDao(CartDao):
             .where(CartItem.user_id == user_id and CartItem.bike_id == bike_id) \
             .limit(1)
         if len(single_cart_query) == 0:
-            raise ItemNotFoundException()
+            return None, "Not found"
         return {
             "cart_id": str(single_cart_query[0].id)
-        }
+        }, None
 
     @async_wrapper
     def dao_get_items_from_cart(self, user_id):
