@@ -1,3 +1,5 @@
+import uuid
+
 from peewee import Model, CharField, DateTimeField, IntegerField, DecimalField, UUIDField, SmallIntegerField, \
     ForeignKeyField, CompositeKey, BooleanField
 
@@ -5,11 +7,11 @@ from infrastructure.relational_db import db
 
 
 class BaseModel(Model):
-    id = UUIDField(primary_key=True)
-    created_on = DateTimeField()
-    updated_on = DateTimeField()
-    created_by = UUIDField()    # TOOD: fkey
-    updated_by = UUIDField()    # TOOD: fkey
+    id = UUIDField(primary_key=True, default=uuid.uuid4)
+    created_on = DateTimeField(null=True)
+    updated_on = DateTimeField(null=True)
+    created_by = UUIDField(null=True)    # TOOD: fkey
+    updated_by = UUIDField(null=True)    # TOOD: fkey
 
     class Meta:
         database = db
@@ -17,7 +19,7 @@ class BaseModel(Model):
 
 class User(BaseModel):
     email = CharField()
-    name = CharField()
+    name = CharField(null=True)
 
     class Meta:
         database = db
@@ -63,11 +65,11 @@ class BikeType(BaseModel):
 
 class Bike(BaseModel):
     bike_type = ForeignKeyField(BikeType, backref="bikes", column_name='bike_type_id')
-    purchase_price = DecimalField()
-    selling_price = DecimalField()
+    purchase_price = DecimalField(null=True)
+    selling_price = DecimalField(null=True)
     status_key = ForeignKeyField(BikeStatus, backref="bikes", column_name="status_key")
-    user_id = ForeignKeyField(User, backref="bikes", column_name='user_id')
-    is_public = BooleanField()
+    user_id = ForeignKeyField(User, backref="bikes", column_name='user_id', null=True)
+    is_public = BooleanField(default=False)
 
     class Meta:
         database = db
@@ -75,7 +77,7 @@ class Bike(BaseModel):
 
 
 class CartItem(Model):
-    id = UUIDField(primary_key=True)
+    id = UUIDField(primary_key=True, default=uuid.uuid4())
     bike_id = ForeignKeyField(Bike, backref="cart", column_name="bike_id")
     user_id = ForeignKeyField(User, backref="cart", column_name="user_id")
 

@@ -10,6 +10,8 @@ from infrastructure.relational_db.models import Role, BikeStatus, BikeType, User
 def seed_relational_db(use_test_data: bool):
     db.connect()
 
+    db.create_tables([User, Role, UserRole, BikeStatus, BikeType, Bike, CartItem])
+
     def check_or_create_role(name):
         if len(Role.select().where(Role.name == name).limit(1)) == 0:
             Role.create(name=name, created_on=datetime.datetime.now(tz=None))
