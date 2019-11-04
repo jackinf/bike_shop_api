@@ -38,7 +38,8 @@ class SqlCartDao(CartDao):
             "bike_id": str(cart.bike_id.id),
             "title": cart.bike_id.bike_type.title,
             "created_on": from_date_to_str(cart.bike_id.created_on),
-            "image": "https://cdn.shopify.com/s/files/1/1772/1703/t/14/assets/bike-side-floating-shadow.png?2856062"
+            "image": "https://cdn.shopify.com/s/files/1/1772/1703/t/14/assets/bike-side-floating-shadow.png?2856062",
+            "selling_price": float(cart.bike_id.selling_price)
         } for cart in get_items_query]
 
 

@@ -77,7 +77,7 @@ class Bike(BaseModel):
 
 
 class CartItem(Model):
-    id = UUIDField(primary_key=True, default=uuid.uuid4())
+    id = UUIDField(primary_key=True, default=uuid.uuid4)
     bike_id = ForeignKeyField(Bike, backref="cart", column_name="bike_id")
     user_id = ForeignKeyField(User, backref="cart", column_name="user_id")
 

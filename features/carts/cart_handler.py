@@ -1,5 +1,6 @@
 from aiohttp import web
 from aiohttp_swagger import *
+from functools import reduce
 
 from constants import RequestContextKeys
 from features.auth.auth_dao import AuthDao
@@ -20,7 +21,11 @@ class CartHandler(CartDao, AuthDao, BikeDao):
             return web.json_response({"error": error}, status=400)
 
         bikes = await super().dao_get_items_from_cart(user.id)
-        return web.json_response({"items": bikes})
+        total_sum = reduce(lambda a, b: a + b, map(lambda bike: bike["selling_price"], bikes)) if len(bikes) > 0 else 0
+        return web.json_response({
+            "items": bikes,
+            "total_sum": total_sum
+        })
 
     @swagger_path("features/carts/swagger/add-to-cart.yaml")
     async def add_to_cart(self, request):
