@@ -1,7 +1,7 @@
 from aiohttp import web
 import aiohttp_swagger
 
-from features import bikes, boxes, carts, auth, status
+from features import bikes, boxes, carts, auth, status, payments
 import config
 import infrastructure
 from middlewares.authMiddleware import optionalAuthMiddleware
@@ -16,6 +16,7 @@ boxes.register_routes(app)
 carts.register_routes(app)
 auth.register_routes(app)
 status.register_routes(app)
+payments.register_routes(app)
 
 aiohttp_swagger.setup_swagger(app)
 
