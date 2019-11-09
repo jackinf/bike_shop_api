@@ -23,4 +23,5 @@ def register_routes(app):
 
     payments_app = web.Application(middlewares=[authMiddleware])
     payments_app.add_routes([web.post('/start-session', handler.handle_create_payment_indent)])
+    payments_app.add_routes([web.post('/start-standalone-session', handler.handle_create_standalone_checkout_session)])
     app.add_subapp('/payments/', payments_app)
